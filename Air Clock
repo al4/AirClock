@@ -1,0 +1,47 @@
+Air Clock MVP
+
+Activities:
+
+Main:
+* Clock display at current time
+* Show source time zone
+* Show destination time zone
+* Show departure time (at source)
+* Show arrival time (at destination)
+
+* onResume:
+ * display everything
+* onPause:
+ * ?
+* onStop:
+ * ?
+
+Settings:
+* Set source time zone
+* Set destination time zone
+* Set departure time
+* Set arrival time
+
+* onResume:
+ * display
+* onStop:
+ * save settings
+
+
+
+Future AirClock features:
+
+* Get time zone from system
+* Retrive flight details from external service
+
+
+
+Calculate time:
+
+$takeoff_time = absolute takeoff time in UTC
+$landing_time = absolute landing time in UTC
+$current_time = current time in UTC
+
+$time_shift = difference between source and dest in seconds
+
+$shift_ratio = 

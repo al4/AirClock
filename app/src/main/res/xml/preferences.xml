@@ -1,0 +1,24 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:title="Destination Time Zone Offset"
+        android:summary="%s"
+        android:key="destTimeZone"
+        android:defaultValue="The time zone you are flying to. The source time zone is your device' current time zone, make sure it is set correctly!"
+        />
+
+    <nz.al4.airclock.TimePreference
+        android:key="takeOffTime"
+        android:title="Take-off time at source"
+        android:defaultValue="00:00"
+        android:summary="%s"
+        />
+
+    <nz.al4.airclock.TimePreference
+        android:key="landingTime"
+        android:title="Landing time at destination"
+        android:defaultValue="00:00"
+        android:summary="%s"
+        />
+
+</PreferenceScreen>
