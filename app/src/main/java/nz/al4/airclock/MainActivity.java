@@ -55,32 +55,38 @@ public class MainActivity
             startActivity(intent);
             return true;
         } else if (id == R.id.action_landing_time) {
-            showDatePickerDialogs(this.findViewById(android.R.id.content));
+            showDatePickerDialogs("landing", this.findViewById(android.R.id.content));
             return true;
         } else if (id == R.id.action_takeoff_time) {
-            showDatePickerDialogs(this.findViewById(android.R.id.content));
+            showDatePickerDialogs("takeoff", this.findViewById(android.R.id.content));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public void showDatePickerDialogs(View v) {
+    public void showDatePickerDialogs(String event, View v) {
+        Bundle bundle = new Bundle();
+        bundle.putString("event", event);
+
         DialogFragment timeFragment = new TimePickerFragment();
+        timeFragment.setArguments(bundle);
         timeFragment.show(getSupportFragmentManager(), "timePicker");
 
         DialogFragment dateFragment = new DatePickerFragment();
+        dateFragment.setArguments(bundle);
         dateFragment.show(getSupportFragmentManager(), "datePicker");
 
         DialogFragment timeZoneFragment = new TimeZonePickerFragment();
+        timeZoneFragment.setArguments(bundle);
         timeZoneFragment.show(getSupportFragmentManager(), "timeZonePicker");
 
         // fetch and return the values
     }
 
-    public void onTimePicked(int layoutid, int hour, int minute) {
+    public void onTimePicked(String event, int hour, int minute) {
         Context context = getApplicationContext();
-        Toast.makeText(context, "ID: " +layoutid+ " Selected hour: " +hour+ " minute: " +minute,
+        Toast.makeText(context, "Event: " +event+ " Selected hour: " +hour+ " minute: " +minute,
                 Toast.LENGTH_LONG).show();
     }
 }

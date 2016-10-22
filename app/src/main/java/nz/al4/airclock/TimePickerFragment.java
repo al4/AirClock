@@ -3,16 +3,10 @@ package nz.al4.airclock;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.view.PagerAdapter;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -28,10 +22,9 @@ public class TimePickerFragment extends DialogFragment
     }
 
     OnTimePickedListener mCallback;
-    Integer mLayoutId = null;
 
     public interface OnTimePickedListener {
-        void onTimePicked(int layoutid, int hour, int minute);
+        void onTimePicked(String event, int hour, int minute);
     }
 
     @Override
@@ -42,16 +35,13 @@ public class TimePickerFragment extends DialogFragment
             mCallback = (OnTimePickedListener)activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-                    " must implement OnTimePickedListenter.");
+                    " must implement OnTimePickedListener.");
         }
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mCallback = (OnTimePickedListener)getActivity();
-
-        Bundle bundle = this.getArguments();
-        mLayoutId = bundle.getInt("layoutId");
 
         // Use the current time as the default values for the picker
         final Calendar c = Calendar.getInstance();
@@ -66,8 +56,11 @@ public class TimePickerFragment extends DialogFragment
 
     @Override
     public void onTimeSet(TimePicker view, int hour, int minute) {
+        Bundle bundle = this.getArguments();
+        String event = bundle.getString("event");
+
         if(mCallback != null) {
-            mCallback.onTimePicked(mLayoutId, hour, minute);
+            mCallback.onTimePicked(event, hour, minute);
         }
     }
 
