@@ -1,5 +1,7 @@
 package nz.al4.airclock;
 
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,8 +12,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity
+        extends AppCompatActivity
+        implements TimePickerFragment.OnTimePickedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,5 +74,13 @@ public class MainActivity extends AppCompatActivity {
 
         DialogFragment timeZoneFragment = new TimeZonePickerFragment();
         timeZoneFragment.show(getSupportFragmentManager(), "timeZonePicker");
+
+        // fetch and return the values
+    }
+
+    public void onTimePicked(int layoutid, int hour, int minute) {
+        Context context = getApplicationContext();
+        Toast.makeText(context, "ID: " +layoutid+ " Selected hour: " +hour+ " minute: " +minute,
+                Toast.LENGTH_LONG).show();
     }
 }
