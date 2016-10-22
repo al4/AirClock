@@ -1,5 +1,8 @@
 .idea/
 *.iml
+*.dex
+*.apk
+*.ap_
 .gradle
 /local.properties
 /.idea/workspace.xml
@@ -7,4 +10,10 @@
 .DS_Store
 /build
 /captures
+.externalNativeBuild
+vin/
+gen/
+out/
+*.jks
+gen-external-apklibs
 .externalNativeBuild
