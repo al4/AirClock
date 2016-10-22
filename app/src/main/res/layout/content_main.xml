@@ -19,7 +19,7 @@
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/card_view"
+        android:id="@+id/card_view_heading"
         card_view:cardCornerRadius="4dp"
         app:cardUseCompatPadding="true"
         android:layout_gravity="top"
@@ -42,33 +42,18 @@
                 android:text="@string/info_text"
                 />
 
-            <TextView
-                android:id="@+id/origin_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/info_text"
-                android:text="@string/origin_text"
-                />
-            <TextView
-                android:id="@+id/dest_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/origin_text"
-                android:text="@string/dest_text"
-                />
-
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/card_view2"
+        android:id="@+id/card_view_origin"
         card_view:cardCornerRadius="4dp"
         app:cardUseCompatPadding="true"
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/card_view">
+        android:layout_below="@+id/card_view_heading">
 
         <LinearLayout
             android:paddingBottom="@dimen/card_vertical_margin"
@@ -76,13 +61,83 @@
             android:paddingRight="@dimen/card_horizontal_margin"
             android:paddingTop="@dimen/card_vertical_margin"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="testing 123"
+                android:text="Origin:"
+                android:textSize="@dimen/heading_text_size"
                 />
+            <TextView
+                android:id="@+id/origin_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/origin_text"
+                />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view_destination"
+        card_view:cardCornerRadius="4dp"
+        app:cardUseCompatPadding="true"
+        android:layout_gravity="top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/card_view_origin">
+
+        <LinearLayout
+            android:paddingBottom="@dimen/card_vertical_margin"
+            android:paddingLeft="@dimen/card_horizontal_margin"
+            android:paddingRight="@dimen/card_horizontal_margin"
+            android:paddingTop="@dimen/card_vertical_margin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Destination:"
+                android:textSize="@dimen/heading_text_size"
+                />
+            <TextView
+                android:id="@+id/dest_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dest_text"
+                />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view_clock"
+        card_view:cardCornerRadius="4dp"
+        app:cardUseCompatPadding="true"
+        android:layout_gravity="top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/card_view_destination">
+
+        <LinearLayout
+            android:paddingBottom="@dimen/card_vertical_margin"
+            android:paddingLeft="@dimen/card_horizontal_margin"
+            android:paddingRight="@dimen/card_horizontal_margin"
+            android:paddingTop="@dimen/card_vertical_margin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="// insert clock here"
+                />
+
         </LinearLayout>
     </android.support.v7.widget.CardView>
 

@@ -63,7 +63,11 @@ public class MainActivity extends AppCompatActivity {
     public void showDatePickerDialogs(View v) {
         DialogFragment timeFragment = new TimePickerFragment();
         timeFragment.show(getSupportFragmentManager(), "timePicker");
+
         DialogFragment dateFragment = new DatePickerFragment();
         dateFragment.show(getSupportFragmentManager(), "datePicker");
+
+        DialogFragment timeZoneFragment = new TimeZonePickerFragment();
+        timeZoneFragment.show(getSupportFragmentManager(), "timeZonePicker");
     }
 }
