@@ -12,11 +12,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 public class MainActivity
         extends AppCompatActivity
         implements TimePickerFragment.OnTimePickedListener {
+
+    TextView OriginText;
+    TextView DestText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,11 @@ public class MainActivity
                         .setAction("Action", null).show();
             }
         });
+
+        this.OriginText = (TextView) findViewById(R.id.origin_text);
+        this.DestText = (TextView) findViewById(R.id.dest_text);
+
+
     }
 
     @Override
@@ -85,6 +96,9 @@ public class MainActivity
     }
 
     public void onTimePicked(String event, int hour, int minute) {
+        this.OriginText.setText("Hour: " +hour+ " minute: " +minute);
+
+
         Context context = getApplicationContext();
         Toast.makeText(context, "Event: " +event+ " Selected hour: " +hour+ " minute: " +minute,
                 Toast.LENGTH_LONG).show();

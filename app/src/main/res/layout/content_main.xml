@@ -19,12 +19,41 @@
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/card_view_heading"
+        android:id="@+id/card_view_clock"
         card_view:cardCornerRadius="4dp"
         app:cardUseCompatPadding="true"
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:paddingBottom="@dimen/card_vertical_margin"
+            android:paddingLeft="@dimen/card_horizontal_margin"
+            android:paddingRight="@dimen/card_horizontal_margin"
+            android:paddingTop="@dimen/card_vertical_margin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="// insert clock here"
+                />
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view_info"
+        card_view:cardCornerRadius="4dp"
+        app:cardUseCompatPadding="true"
+        android:layout_gravity="top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/card_view_clock">
 
         <LinearLayout
             android:paddingBottom="@dimen/card_vertical_margin"
@@ -53,7 +82,7 @@
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/card_view_heading">
+        android:layout_below="@+id/card_view_info">
 
         <LinearLayout
             android:paddingBottom="@dimen/card_vertical_margin"
@@ -110,34 +139,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/dest_text"
                 />
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/card_view_clock"
-        card_view:cardCornerRadius="4dp"
-        app:cardUseCompatPadding="true"
-        android:layout_gravity="top"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/card_view_destination">
-
-        <LinearLayout
-            android:paddingBottom="@dimen/card_vertical_margin"
-            android:paddingLeft="@dimen/card_horizontal_margin"
-            android:paddingRight="@dimen/card_horizontal_margin"
-            android:paddingTop="@dimen/card_vertical_margin"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="// insert clock here"
-                />
-
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
