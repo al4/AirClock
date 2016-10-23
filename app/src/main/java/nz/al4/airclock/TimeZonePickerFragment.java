@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 
 /**
@@ -92,23 +91,13 @@ public class TimeZonePickerFragment extends DialogFragment
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item, new TimeZoneList().getTimeZoneOffsets());
         spinner.setAdapter(dataAdapter);
-        Toast.makeText(getContext(), "setSpinnerContent called",
-                Toast.LENGTH_LONG).show();
 
         spinner.setOnItemSelectedListener(this);
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-        Toast.makeText(getContext(), "onItemSelected called",
-                Toast.LENGTH_LONG).show();
-
         Object obj = parent.getItemAtPosition(position);
         int offset = Integer.valueOf(obj.toString());
-
-        Context context = getActivity().getApplicationContext();
-        Toast.makeText(context, this.selected_item,
-                Toast.LENGTH_LONG).show();
 
         Bundle bundle = this.getArguments();
         String event = bundle.getString("event");
@@ -116,14 +105,8 @@ public class TimeZonePickerFragment extends DialogFragment
 
     }
 
-    String selected_item;
-
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
-    public void confirm() {
 
     }
 
