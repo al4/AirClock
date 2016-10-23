@@ -1,6 +1,5 @@
 package nz.al4.airclock;
 
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +14,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Calendar;
+import org.joda.time.DateTime;
+import org.joda.time.MutableDateTime;
 import org.w3c.dom.Text;
 
 public class MainActivity
@@ -23,6 +25,9 @@ public class MainActivity
 
     TextView OriginText;
     TextView DestText;
+
+    MutableDateTime OriginDate = new DateTime().toMutableDateTime();
+    MutableDateTime DestDate = new DateTime().toMutableDateTime();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +47,6 @@ public class MainActivity
 
         this.OriginText = (TextView) findViewById(R.id.origin_text);
         this.DestText = (TextView) findViewById(R.id.dest_text);
-
-
     }
 
     @Override
@@ -96,11 +99,20 @@ public class MainActivity
     }
 
     public void onTimePicked(String event, int hour, int minute) {
-        this.OriginText.setText("Hour: " +hour+ " minute: " +minute);
+        if (event == "takeoff") {
+            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
+            this.OriginDate.setHourOfDay(hour);
+            this.OriginDate.setMinuteOfDay(minute);
+        } else if (event == "landing") {
+            this.DestText.setText("Selected time: " + this.OriginDate.toString());
+            this.DestDate.setHourOfDay(hour);
+            this.DestDate.setMinuteOfDay(minute);
+        }
 
-
-        Context context = getApplicationContext();
-        Toast.makeText(context, "Event: " +event+ " Selected hour: " +hour+ " minute: " +minute,
-                Toast.LENGTH_LONG).show();
+//        Context context = getApplicationContext();
+//        Toast.makeText(context, "Event: " +event+ " Selected time: " + this.OriginDate.toString(),
+//                Toast.LENGTH_LONG).show();
     }
+
+//    public void onDateSet()
 }
