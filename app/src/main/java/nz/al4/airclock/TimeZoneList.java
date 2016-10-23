@@ -3,6 +3,9 @@ package nz.al4.airclock;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -44,5 +47,17 @@ public class TimeZoneList {
         tzOffsetArray = tzOffsets.toArray(tzOffsetArray);
 
         return tzOffsetArray;
+    }
+
+    public List getTimeZoneList() {
+        List<HashMap<String, String>> tzList = new ArrayList<HashMap<String,String>>();
+
+        for (int i = -13; i <= 13; i++) {
+            HashMap map = new HashMap();
+            map.put("foo " + String.valueOf(i), i);
+            tzList.add(map);
+        }
+
+        return tzList;
     }
 }

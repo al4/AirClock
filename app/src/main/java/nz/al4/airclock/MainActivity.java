@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -14,11 +15,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Calendar;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.MutableDateTime;
-import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity
         implements DatePickerFragment.OnDatePickedListener,
@@ -94,11 +93,14 @@ public class MainActivity extends AppCompatActivity
         dateFragment.setArguments(bundle);
         dateFragment.show(getSupportFragmentManager(), "datePicker");
 
-        DialogFragment timeZoneFragment = new TimeZonePickerFragment();
+        ListFragment timeZoneFragment = new TimeZonePickerFragment();
         timeZoneFragment.setArguments(bundle);
-        timeZoneFragment.show(getSupportFragmentManager(), "timeZonePicker");
 
-        // fetch and return the values
+//        timeZoneFragment.getActivity().
+//                show(getSupportFragmentManager(), "timeZonePicker");
+
+        Intent intent = new Intent(this, TimeZoneListActivity.class);
+        startActivity(intent);
     }
 
     public void onTimePicked(String event, int hour, int minute) {
