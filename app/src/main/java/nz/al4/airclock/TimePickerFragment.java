@@ -55,10 +55,6 @@ public class TimePickerFragment extends DialogFragment
         Bundle bundle = this.getArguments();
         String event = bundle.getString("event");
 
-//        Context context = getActivity().getApplicationContext();
-//        Toast.makeText(context, "hour: " + hour,
-//                Toast.LENGTH_LONG).show();
-
         if(mCallback != null) {
             mCallback.onTimePicked(event, hour, minute);
         }

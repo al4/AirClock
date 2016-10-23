@@ -14,11 +14,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Calendar;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.MutableDateTime;
-import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity
         implements DatePickerFragment.OnDatePickedListener,
@@ -102,8 +100,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onTimePicked(String event, int hour, int minute) {
-        Context context = getApplicationContext();
-        Toast.makeText(context, "foo hour: " + hour, Toast.LENGTH_LONG).show();
         if (event == "takeoff") {
             this.OriginDate.setHourOfDay(hour);
             this.OriginDate.setMinuteOfHour(minute);
@@ -113,10 +109,6 @@ public class MainActivity extends AppCompatActivity
             this.DestDate.setMinuteOfHour(minute);
             this.DestText.setText("Selected time: " + this.DestDate.toString());
         }
-
-//        Context context = getApplicationContext();
-//        Toast.makeText(context, "Event: " +event+ " Selected time: " + this.OriginDate.toString(),
-//                Toast.LENGTH_LONG).show();
     }
 
     @Override

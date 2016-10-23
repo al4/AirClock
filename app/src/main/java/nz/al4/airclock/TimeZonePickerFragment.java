@@ -1,14 +1,17 @@
 package nz.al4.airclock;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
-import nz.al4.airclock.TimeZoneList;
+import android.widget.Toast;
 
 
 /**
@@ -16,10 +19,8 @@ import nz.al4.airclock.TimeZoneList;
  * <p/>
  * interface.
  */
-public class TimeZonePickerFragment extends DialogFragment {
-
-    private Spinner spinner;
-    private String[] timeZones = new TimeZoneList().getTimeZoneOffsets();
+public class TimeZonePickerFragment extends DialogFragment
+    implements AdapterView.OnItemSelectedListener {
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -68,7 +69,18 @@ public class TimeZonePickerFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.spinner_timezone, container, false);
+        mCallback = (OnZonePickedListener) getActivity();
+        View view = inflater.inflate(R.layout.fragment_timezone, container, false);
+        getDialog().setTitle("Select Time Zone offset");
+
+        Button button_ok = (Button) view.findViewById(R.id.timezone_ok);
+        button_ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDialog().cancel();
+            }
+        });
+
         setSpinnerContent(view);
 
         // Set the adapter
@@ -77,9 +89,42 @@ public class TimeZonePickerFragment extends DialogFragment {
 
     private void setSpinnerContent (View view) {
         Spinner spinner = (Spinner) view.findViewById(R.id.spinner_timezone);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, new TimeZoneList().getTimeZoneOffsets());
+        spinner.setAdapter(dataAdapter);
+        Toast.makeText(getContext(), "setSpinnerContent called",
+                Toast.LENGTH_LONG).show();
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                this.timeZones);
+        spinner.setOnItemSelectedListener(this);
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        Toast.makeText(getContext(), "onItemSelected called",
+                Toast.LENGTH_LONG).show();
+
+        Object obj = parent.getItemAtPosition(position);
+        int offset = Integer.valueOf(obj.toString());
+
+        Context context = getActivity().getApplicationContext();
+        Toast.makeText(context, this.selected_item,
+                Toast.LENGTH_LONG).show();
+
+        Bundle bundle = this.getArguments();
+        String event = bundle.getString("event");
+        mCallback.onZonePicked(event, offset);
+
+    }
+
+    String selected_item;
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    public void confirm() {
+
     }
 
 }

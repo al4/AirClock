@@ -32,5 +32,6 @@
     <string name="info_text">Air Clock slowly shifts the time between your origin and destination</string>
     <string name="origin_text">Please set the take-off date/time</string>
     <string name="dest_text">Please set the landing date/time</string>
+    <string name="placeholder_text">// insert content here \\\\</string>
 
 </resources>
