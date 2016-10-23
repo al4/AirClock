@@ -3,13 +3,12 @@ package nz.al4.airclock;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
-
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import nz.al4.airclock.TimeZoneList;
 
 
 /**
@@ -17,8 +16,10 @@ import android.widget.SimpleAdapter;
  * <p/>
  * interface.
  */
-public class TimeZonePickerFragment extends ListFragment
-    {
+public class TimeZonePickerFragment extends DialogFragment {
+
+    private Spinner spinner;
+    private String[] timeZones = new TimeZoneList().getTimeZoneOffsets();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -67,19 +68,18 @@ public class TimeZonePickerFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_timezone, container, false);
-
-        ListAdapter TimeZonesAdapter = new SimpleAdapter(
-                getContext(),
-                new TimeZoneList().getTimeZoneList(),
-                R.layout.fragment_timezone,
-                new String[] {"timezone"},
-                new int[] {R.id.fragment_timezone});
+        View view = inflater.inflate(R.layout.spinner_timezone, container, false);
+        setSpinnerContent(view);
 
         // Set the adapter
         return view;
     }
 
+    private void setSpinnerContent (View view) {
+        Spinner spinner = (Spinner) view.findViewById(R.id.spinner_timezone);
 
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                this.timeZones);
+    }
 
 }

@@ -12,23 +12,17 @@
     tools:context="nz.al4.airclock.TimeZonePickerFragment"
     tools:listitem="@layout/fragment_timezone">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <Layout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/time_zone_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
         <TextView
-            android:id="@+id/time_zone_content"
+            android:id="@+id/content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/text_margin"
             android:textAppearance="?attr/textAppearanceListItem" />
-
-    </RelativeLayout>
+        </Layout>
 </android.support.v7.widget.RecyclerView>
 
