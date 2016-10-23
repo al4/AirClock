@@ -1,15 +1,14 @@
 package nz.al4.airclock;
 
-import android.content.Context;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import nz.al4.airclock.TimeZoneList;
 
 
 /**
@@ -19,10 +18,8 @@ import android.view.ViewGroup;
  */
 public class TimeZonePickerFragment extends DialogFragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
+    private Spinner spinner;
+    private String[] timeZones = new TimeZoneList().getTimeZoneOffsets();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -31,12 +28,29 @@ public class TimeZonePickerFragment extends DialogFragment {
     public TimeZonePickerFragment() {
     }
 
-    // TODO: Customize parameter initialization
+    OnZonePickedListener mCallback;
+
+    public interface OnZonePickedListener {
+        void onZonePicked(String event, int offset);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mCallback = (OnZonePickedListener)activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() +
+                    " must implement OnZonePickedListener.");
+        }
+    }
+
     @SuppressWarnings("unused")
-    public static TimeZonePickerFragment newInstance(int columnCount) {
+    public static TimeZonePickerFragment newInstance(String event) {
         TimeZonePickerFragment fragment = new TimeZonePickerFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putString("event", event);
         fragment.setArguments(args);
         return fragment;
     }
@@ -44,20 +58,28 @@ public class TimeZonePickerFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String mEvent;
 
         if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            mEvent = getArguments().getString("event");
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_timezone_list, container, false);
+        View view = inflater.inflate(R.layout.spinner_timezone, container, false);
+        setSpinnerContent(view);
 
         // Set the adapter
         return view;
     }
 
+    private void setSpinnerContent (View view) {
+        Spinner spinner = (Spinner) view.findViewById(R.id.spinner_timezone);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                this.timeZones);
+    }
 
 }

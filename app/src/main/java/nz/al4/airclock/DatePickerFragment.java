@@ -1,6 +1,7 @@
 package nz.al4.airclock;
 
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -21,9 +22,28 @@ public class DatePickerFragment extends DialogFragment
         // Required empty public constructor
     }
 
+    OnDatePickedListener mCallback;
+
+    public interface OnDatePickedListener {
+        void onDatePicked(String event, int year, int month, int day);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mCallback = (OnDatePickedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() +
+                    " must implement OnDatePickedListener.");
+        }
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        mCallback = (OnDatePickedListener)getActivity();
+
         // Use the current date as the default date in the picker
         final Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
@@ -36,8 +56,12 @@ public class DatePickerFragment extends DialogFragment
 
 
     @Override
-    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        // Do something with the date chosen by the user
+    public void onDateSet(DatePicker view, int year, int month, int day) {
+        Bundle bundle = this.getArguments();
+        String event = bundle.getString("event");
 
+        if(mCallback != null) {
+            mCallback.onDatePicked(event, year, month, day);
+        }
     }
 }

@@ -16,12 +16,15 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.MutableDateTime;
 import org.w3c.dom.Text;
 
-public class MainActivity
-        extends AppCompatActivity
-        implements TimePickerFragment.OnTimePickedListener {
+public class MainActivity extends AppCompatActivity
+        implements DatePickerFragment.OnDatePickedListener,
+                   TimePickerFragment.OnTimePickedListener,
+                   TimeZonePickerFragment.OnZonePickedListener
+{
 
     TextView OriginText;
     TextView DestText;
@@ -99,14 +102,16 @@ public class MainActivity
     }
 
     public void onTimePicked(String event, int hour, int minute) {
+        Context context = getApplicationContext();
+        Toast.makeText(context, "foo hour: " + hour, Toast.LENGTH_LONG).show();
         if (event == "takeoff") {
-            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
             this.OriginDate.setHourOfDay(hour);
-            this.OriginDate.setMinuteOfDay(minute);
+            this.OriginDate.setMinuteOfHour(minute);
+            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
         } else if (event == "landing") {
-            this.DestText.setText("Selected time: " + this.OriginDate.toString());
             this.DestDate.setHourOfDay(hour);
-            this.DestDate.setMinuteOfDay(minute);
+            this.DestDate.setMinuteOfHour(minute);
+            this.DestText.setText("Selected time: " + this.DestDate.toString());
         }
 
 //        Context context = getApplicationContext();
@@ -114,5 +119,31 @@ public class MainActivity
 //                Toast.LENGTH_LONG).show();
     }
 
-//    public void onDateSet()
+    @Override
+    public void onDatePicked(String event, int year, int month, int day) {
+        if (event == "takeoff") {
+            this.OriginDate.setYear(year);
+            this.OriginDate.setMonthOfYear(month + 1);
+            this.OriginDate.setDayOfMonth(day);
+            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
+        } else if (event == "landing") {
+            this.DestDate.setYear(year);
+            this.DestDate.setMonthOfYear(month + 1);
+            this.DestDate.setDayOfMonth(day);
+            this.DestText.setText("Selected time: " + this.DestDate.toString());
+        }
+    }
+
+    @Override
+    public void onZonePicked(String event, int offset) {
+        if (event == "takeoff") {
+            DateTimeZone zone = DateTimeZone.forOffsetHours(offset);
+            this.OriginDate.setZone(zone);
+            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
+        } else if (event == "landing") {
+            DateTimeZone zone = DateTimeZone.forOffsetHours(offset);
+            this.DestDate.setZone(zone);
+            this.DestText.setText("Selected time: " + this.DestDate.toString());
+        }
+    }
 }
