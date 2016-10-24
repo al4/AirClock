@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import android.widget.Spinner;
  * <p/>
  * interface.
  */
-public class TimeZonePickerFragment extends DialogFragment
+public class TimeZonePickerFragment extends AppCompatDialogFragment
     implements AdapterView.OnItemSelectedListener {
 
     /**
