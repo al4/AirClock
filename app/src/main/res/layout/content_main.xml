@@ -20,7 +20,6 @@
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view_clock"
-        card_view:cardCornerRadius="4dp"
         app:cardUseCompatPadding="true"
         android:layout_gravity="top"
         android:layout_width="match_parent"
@@ -48,8 +47,7 @@
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view_info"
-        card_view:cardCornerRadius="4dp"
-        app:cardUseCompatPadding="true"
+        style="@style/AppTheme.CardViewStyle"
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -77,8 +75,7 @@
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view_origin"
-        card_view:cardCornerRadius="4dp"
-        app:cardUseCompatPadding="true"
+        style="@style/AppTheme.CardViewStyle"
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -105,7 +102,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/origin_text"
                 />
-        </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
@@ -130,7 +126,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Destination:"
+                android:title="Destination:"
                 android:textSize="@dimen/heading_text_size"
                 />
             <TextView
