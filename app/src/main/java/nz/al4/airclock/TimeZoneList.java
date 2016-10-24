@@ -45,4 +45,18 @@ public class TimeZoneList {
 
         return tzOffsetArray;
     }
+
+    public CharSequence[] getTimeZoneOffsetSeq() {
+        ArrayList<String> tzOffsets = new ArrayList<>();
+
+        for (int i = -13; i <= 13; i++) {
+            tzOffsets.add(String.valueOf(i));
+        }
+
+        CharSequence[] tzOffsetArray = new CharSequence[tzOffsets.size()];
+        tzOffsetArray = tzOffsets.toArray(tzOffsetArray);
+
+        return tzOffsetArray;
+    }
+
 }

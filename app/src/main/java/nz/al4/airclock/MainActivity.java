@@ -109,6 +109,10 @@ public class MainActivity extends AppCompatActivity
             this.DestDate.setMinuteOfHour(minute);
             this.DestText.setText("Selected time: " + this.DestDate.toString());
         }
+
+        Context context = getApplicationContext();
+        Toast.makeText(context, "Event: " +event+ " Selected time: " + this.OriginDate.toString(),
+                Toast.LENGTH_LONG).show();
     }
 
     @Override
