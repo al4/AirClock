@@ -25,6 +25,7 @@ public class TimeZonePickerFragment extends AppCompatDialogFragment {
     }
 
     OnZonePickedListener mCallback;
+    int selected_zone_id = 13;  // default selection
     CharSequence selected_zone;
     String event;
 
@@ -55,16 +56,15 @@ public class TimeZonePickerFragment extends AppCompatDialogFragment {
         final CharSequence[] timeZones = new TimeZoneList().getTimeZoneOffsetSeq();
 
         builder.setTitle("Select Time Zone Offset")
-            .setSingleChoiceItems(timeZones, 13, new AlertDialog.OnClickListener() {
+            .setSingleChoiceItems(timeZones, selected_zone_id, new AlertDialog.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    selected_zone = timeZones[id];
-                    Context context = getContext();
-                    Toast.makeText(context, "selected " + selected_zone, Toast.LENGTH_LONG).show();
+                    selected_zone_id = id;
                 }
 
             })
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
+                    selected_zone = timeZones[selected_zone_id];
                     int offset = Integer.valueOf(selected_zone.toString());
 
                     mCallback.onZonePicked(event, offset);
