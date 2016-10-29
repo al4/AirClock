@@ -44,4 +44,20 @@ $current_time = current time in UTC
 
 $time_shift = difference between source and dest in seconds
 
-$shift_ratio = 
+$shift_ratio = ($elapsed / $total_flight_time)
+
+$shift_seconds = $time_shift * $shift_ratio
+
+$effective_time = $current_time + $shift_seconds
+
+
+origin time zone: GMT+1
+dest time zone GMT+13
+28 hr flight
+
+takeoff 17:30 29/10/2016 GMT+1
+landing 09:30 31/10/2016 GMT+13
+
+
+
+landing G

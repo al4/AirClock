@@ -5,62 +5,57 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import org.joda.time.MutableDateTime;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link OnClockInteractionListener} interface
+ * {@link OnTouchListener} interface
  * to handle interaction events.
- * Use the {@link AirClockFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
 public class AirClockFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_ORIGIN = "originTime";
-    private static final String ARG_DEST = "destTime";
+    public DateTime originTime = new DateTime();
+    public DateTime destTime = new DateTime();
 
-    private Long mOriginTime;
-    private Long mDestTime;
+    private OnTouchListener mListener;
 
-    public MutableDateTime ORIGIN_TIME = new MutableDateTime();
-    public MutableDateTime DEST_TIME = new MutableDateTime();
+    private TimeCalculator timeCalculator = new TimeCalculator();
 
-    private OnClockInteractionListener mListener;
+    private View clockView;
+    private TextView clockText;
 
     public AirClockFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param originTime Origin departure time.
-     * @param destTime Destination arrival time.
-     * @return A new instance of fragment AirClockFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AirClockFragment newInstance(MutableDateTime originTime, MutableDateTime destTime) {
-        AirClockFragment fragment = new AirClockFragment();
-        Bundle args = new Bundle();
-        args.putLong(ARG_ORIGIN, originTime.getMillis());
-        args.putLong(ARG_DEST, destTime.getMillis());
-        fragment.setArguments(args);
-        return fragment;
+    public void updateClock() {
+        /**
+         * Update the displayed time
+         */
+        DateTime effectiveTime = timeCalculator.getEffectiveTime(originTime, destTime);
+        DateTime currentTime = new DateTime();
+
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm");
+        String StringEffectiveTime = fmt.print(effectiveTime);
+
+        String text = "Current effective time is: " + StringEffectiveTime;
+
+        clockText.setText(text);
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mOriginTime = getArguments().getLong(ARG_ORIGIN);
-            mDestTime = getArguments().getLong(ARG_DEST);
         }
     }
 
@@ -68,24 +63,38 @@ public class AirClockFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_air_clock, container, false);
+        View view = inflater.inflate(R.layout.fragment_air_clock, container, false);
+        clockView = view;
+
+        view.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                updateClock();
+                return true;
+            }
+        });
+
+        clockText = (TextView) view.findViewById(R.id.clock_text);
+
+        // set the initial clock
+        updateClock();
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed() {
         if (mListener != null) {
-            mListener.onClockInteraction(uri);
+            mListener.onClockTouch();
         }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnClockInteractionListener) {
-            mListener = (OnClockInteractionListener) context;
+        if (context instanceof OnTouchListener) {
+            mListener = (OnTouchListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnClockInteractionListener");
+                    + " must implement OnTouchListener");
         }
     }
 
@@ -105,8 +114,8 @@ public class AirClockFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnClockInteractionListener {
+    public interface OnTouchListener {
         // TODO: Update argument type and name
-        void onClockInteraction(Uri uri);
+        void onClockTouch();
     }
 }

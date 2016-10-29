@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity
         implements DatePickerFragment.OnDatePickedListener,
                    TimePickerFragment.OnTimePickedListener,
                    TimeZonePickerFragment.OnZonePickedListener,
-                   AirClockFragment.OnClockInteractionListener
+        AirClockFragment.OnTouchListener
 {
 
     TextView OriginText;
@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity
 
     MutableDateTime OriginDate = new DateTime().toMutableDateTime();
     MutableDateTime DestDate = new DateTime().toMutableDateTime();
+
+    AirClockFragment clockFragment = new AirClockFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +46,18 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+
+                Snackbar.make(view, "Clock updated", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                clockFragment.updateClock();
+
             }
         });
 
         this.OriginText = (TextView) findViewById(R.id.origin_text);
         this.DestText = (TextView) findViewById(R.id.dest_text);
 
-        AirClockFragment clockFragment = new AirClockFragment();
-//        FrameLayout clockLayout = (FrameLayout) findViewById(R.id.card_view_clock_layout);
-//        clockLayout.addView(clockFragment);
+        // Setup the clock fragment
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.card_view_clock_layout, clockFragment);
         ft.commit();
@@ -123,6 +126,9 @@ public class MainActivity extends AppCompatActivity
         Context context = getApplicationContext();
         Toast.makeText(context, "Event: " +event+ " Selected time: " + this.OriginDate.toString(),
                 Toast.LENGTH_LONG).show();
+
+        clockFragment.originTime = OriginDate.toDateTime();
+        clockFragment.destTime = DestDate.toDateTime();
     }
 
     @Override
@@ -154,7 +160,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClockInteraction(Uri uri) {
+    public void onClockTouch() {
 
     }
 }
