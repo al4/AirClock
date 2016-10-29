@@ -2,10 +2,12 @@ package nz.al4.airclock;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -21,7 +23,8 @@ import org.joda.time.MutableDateTime;
 public class MainActivity extends AppCompatActivity
         implements DatePickerFragment.OnDatePickedListener,
                    TimePickerFragment.OnTimePickedListener,
-                   TimeZonePickerFragment.OnZonePickedListener
+                   TimeZonePickerFragment.OnZonePickedListener,
+                   AirClockFragment.OnClockInteractionListener
 {
 
     TextView OriginText;
@@ -48,6 +51,13 @@ public class MainActivity extends AppCompatActivity
 
         this.OriginText = (TextView) findViewById(R.id.origin_text);
         this.DestText = (TextView) findViewById(R.id.dest_text);
+
+        AirClockFragment clockFragment = new AirClockFragment();
+//        FrameLayout clockLayout = (FrameLayout) findViewById(R.id.card_view_clock_layout);
+//        clockLayout.addView(clockFragment);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.card_view_clock_layout, clockFragment);
+        ft.commit();
     }
 
     @Override
@@ -141,5 +151,10 @@ public class MainActivity extends AppCompatActivity
             this.DestDate.setZone(zone);
             this.DestText.setText("Selected time: " + this.DestDate.toString());
         }
+    }
+
+    @Override
+    public void onClockInteraction(Uri uri) {
+
     }
 }
