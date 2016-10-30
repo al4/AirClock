@@ -19,13 +19,18 @@
 package nz.al4.airclock;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
@@ -50,6 +55,8 @@ public class AirClockFragment extends Fragment {
     private View clockView;
     private TextView clockText;
 
+    private TextClock textClock;
+
     public AirClockFragment() {
         // Required empty public constructor
     }
@@ -64,10 +71,9 @@ public class AirClockFragment extends Fragment {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm");
         String StringEffectiveTime = fmt.print(effectiveTime);
 
-        String text = "Current effective time is: " + StringEffectiveTime;
-
-        clockText.setText(text);
-
+        // update our TextClock
+        String effectiveTz = timeCalculator.getEffectiveOffset(originTime, destTime);
+        textClock.setTimeZone(effectiveTz);
     }
 
     @Override
@@ -81,21 +87,31 @@ public class AirClockFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_air_clock, container, false);
-        clockView = view;
+        FrameLayout layout = (FrameLayout) inflater.inflate(R.layout.fragment_air_clock, container, false);
+//        clockView = layout;
 
-        view.setOnTouchListener(new View.OnTouchListener() {
+        layout.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 updateClock();
                 return true;
             }
         });
 
-        clockText = (TextView) view.findViewById(R.id.clock_text);
+        // add digital clock
+        textClock = new TextClock(getContext());
+
+        textClock.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT));
+        textClock.setTypeface(textClock.getTypeface(), Typeface.BOLD);
+        textClock.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
+        textClock.setGravity(Gravity.CENTER_HORIZONTAL);
 
         // set the initial clock
         updateClock();
-        return view;
+
+        layout.addView(textClock);
+
+        return layout;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
