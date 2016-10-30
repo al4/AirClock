@@ -120,8 +120,6 @@ public class TimeCalculator {
         long shiftMinutes = shiftMillis / (1000*60);
         int offsetMinutes = (int) (shiftMinutes % 60);
         int offsetHours = (int) ((shiftMinutes - offsetMinutes) / 60);
-//        Log.i("offsetCalc", "shift hours: " + shiftHours);
-//        Log.i("offsetCalc", "shift minutes: " + shiftMinutes);
 
         Log.i("offsetCalc", "hours " + offsetHours);
         Log.i("offsetCalc", "minutes " + offsetMinutes);

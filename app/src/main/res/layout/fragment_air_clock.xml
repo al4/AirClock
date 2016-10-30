@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_air_clock"
     android:layout_width="match_parent"
@@ -6,4 +6,4 @@
     style="@style/ClockText"
     tools:context="nz.al4.airclock.AirClockFragment">
 
-</FrameLayout>
+</RelativeLayout>
