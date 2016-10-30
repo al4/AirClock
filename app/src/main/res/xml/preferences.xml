@@ -1,24 +1,49 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <ListPreference
-        android:title="Destination Time Zone"
-        android:summary="%s"
-        android:key="destTimeZone"
-        android:defaultValue="The time zone you are flying to. The source time zone is your device' current time zone, make sure it is set correctly!"
-        />
+    <PreferenceCategory android:title="Origin">
+        <ListPreference
+            android:title="Time Zone"
+            android:summary="GMT %s"
+            android:key="originTimeZone"
+            android:defaultValue="The time zone you are flying to. The source time zone is your device' current time zone, make sure it is set correctly!"
+            />
 
-    <nz.al4.airclock.TimePreference
-        android:key="takeOffTime"
-        android:title="Take-off time at source"
-        android:defaultValue="00:00"
-        android:summary="%s"
-        />
+        <nz.al4.airclock.DatePreference
+            android:key="takeOffDate"
+            android:title="Take-off date"
+            android:summary="%s"
+            />
 
-    <nz.al4.airclock.TimePreference
-        android:key="landingTime"
-        android:title="Landing time at destination"
-        android:defaultValue="00:00"
-        android:summary="%s"
-        />
+        <nz.al4.airclock.TimePreference
+            android:key="takeOffTime"
+            android:title="Take-off time"
+            android:summary="%s"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Destination">
+        <ListPreference
+            android:title="Time Zone"
+            android:summary="%s"
+            android:key="destTimeZone"
+            android:defaultValue="The time zone you are flying to. The source time zone is your device' current time zone, make sure it is set correctly!"
+            />
+
+        <nz.al4.airclock.DatePreference
+            android:key="landingDate"
+            android:title="Landing date"
+            android:summary="%s"
+            />
+
+        <nz.al4.airclock.TimePreference
+            android:key="landingTime"
+            android:title="Landing time"
+            android:summary="%s"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_header_general">
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

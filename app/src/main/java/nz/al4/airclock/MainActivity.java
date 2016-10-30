@@ -20,23 +20,27 @@ package nz.al4.airclock;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.MutableDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class MainActivity extends AppCompatActivity
         implements DatePickerFragment.OnDatePickedListener,
@@ -52,6 +56,8 @@ public class MainActivity extends AppCompatActivity
     MutableDateTime DestDate = new DateTime().toMutableDateTime();
 
     AirClockFragment clockFragment = new AirClockFragment();
+
+    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +80,78 @@ public class MainActivity extends AppCompatActivity
 
         this.OriginText = (TextView) findViewById(R.id.origin_text);
         this.DestText = (TextView) findViewById(R.id.dest_text);
+        getPreferences();
 
         // Setup the clock fragment
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.card_view_clock_layout, clockFragment);
         ft.commit();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferences();
+        clockFragment.updateClock();
+    }
+
+    private void getPreferences() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String originDate = prefs.getString("takeOffDate", null);
+        if (originDate != null) {
+            this.OriginDate.setYear(DatePreference.getYear(originDate));
+            this.OriginDate.setMonthOfYear(DatePreference.getMonth(originDate));
+            this.OriginDate.setDayOfMonth(DatePreference.getDay(originDate));
+        } else {
+            Log.i("prefs", "takeOffDate is null");
+        }
+
+        String originTime = prefs.getString("takeOffTime", null);
+        if (originTime != null) {
+            this.OriginDate.setHourOfDay(TimePreference.getHour(originTime));
+            this.OriginDate.setMinuteOfHour(TimePreference.getMinute(originTime));
+        } else {
+            Log.i("prefs", "takeOffTime is null");
+        }
+
+        String originTimeZone = prefs.getString("originTimeZone", null);
+        if (originTimeZone != null) {
+            DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(originTimeZone));
+            this.OriginDate.setZone(zone);
+        }
+
+        String destDate = prefs.getString("landingDate", null);
+        if (destDate != null) {
+            this.DestDate.setYear(DatePreference.getYear(destDate));
+            this.DestDate.setMonthOfYear(DatePreference.getMonth(destDate));
+            this.DestDate.setDayOfMonth(DatePreference.getDay(destDate));
+        } else {
+            Log.i("prefs", "landingDate is null");
+        }
+
+        String destTime = prefs.getString("landingTime", null);
+        if (destTime != null) {
+            this.DestDate.setHourOfDay(TimePreference.getHour(destTime));
+            this.DestDate.setMinuteOfHour(TimePreference.getMinute(destTime));
+        } else {
+            Log.i("prefs", "landingTime is null");
+        }
+
+        String destTimeZone = prefs.getString("destTimeZone", null);
+        if (destTimeZone != null) {
+            DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(destTimeZone));
+            this.DestDate.setZone(zone);
+        }
+
+        setOriginDestText();
+        clockFragment.originTime = OriginDate.toDateTime();
+        clockFragment.destTime = DestDate.toDateTime();
+    }
+
+    private void setOriginDestText() {
+        this.OriginText.setText(dateTimeFormatter.print(OriginDate) + " " + OriginDate.getZone().toString());
+        this.DestText.setText(dateTimeFormatter.print(DestDate) + " " + DestDate.getZone().toString());
     }
 
     @Override
@@ -100,6 +173,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_about) {
+            DialogFragment aboutFragment = new AboutFragment();
+            aboutFragment.show(getSupportFragmentManager(), "aboutFragment");
         } else if (id == R.id.action_landing_time) {
             showDatePickerDialogs("landing", this.findViewById(android.R.id.content));
             return true;

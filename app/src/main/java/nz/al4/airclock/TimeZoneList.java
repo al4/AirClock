@@ -54,7 +54,7 @@ public class TimeZoneList {
     public String[] getTimeZoneOffsets() {
         ArrayList<String> tzOffsets = new ArrayList<>();
 
-        for (int i = -13; i <= 13; i++) {
+        for (int i = -12; i <= 14; i++) {
             tzOffsets.add(String.valueOf(i));
         }
 
@@ -67,7 +67,7 @@ public class TimeZoneList {
     public CharSequence[] getTimeZoneOffsetSeq() {
         ArrayList<String> tzOffsets = new ArrayList<>();
 
-        for (int i = -13; i <= 13; i++) {
+        for (int i = -12; i <= 14; i++) {
             tzOffsets.add(String.valueOf(i));
         }
 

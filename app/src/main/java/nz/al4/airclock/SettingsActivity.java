@@ -31,6 +31,11 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -145,15 +150,26 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
+            bindPreferenceSummaryToValue(findPreference("originTimeZone"));
             bindPreferenceSummaryToValue(findPreference("destTimeZone"));
             bindPreferenceSummaryToValue(findPreference("takeOffTime"));
             bindPreferenceSummaryToValue(findPreference("landingTime"));
+            bindPreferenceSummaryToValue(findPreference("takeOffDate"));
+            bindPreferenceSummaryToValue(findPreference("landingDate"));
 
             // Build the time zone list
             String[] tzList = new TimeZoneList().getTimeZoneOffsets();
-            ListPreference listPreferenceTimeZone = (ListPreference) findPreference("destTimeZone");
-            listPreferenceTimeZone.setEntries(tzList);
-            listPreferenceTimeZone.setEntryValues(tzList);
+
+            ListPreference listPreferenceOriginTimeZone = (ListPreference) findPreference("originTimeZone");
+            ListPreference listPreferenceDestTimeZone = (ListPreference) findPreference("destTimeZone");
+
+            listPreferenceDestTimeZone.setDefaultValue(getTzOffset());
+
+            listPreferenceOriginTimeZone.setEntries(tzList);
+            listPreferenceOriginTimeZone.setEntryValues(tzList);
+
+            listPreferenceDestTimeZone.setEntries(tzList);
+            listPreferenceDestTimeZone.setEntryValues(tzList);
         }
 
         @Override
@@ -164,6 +180,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 return true;
             }
             return super.onOptionsItemSelected(item);
+        }
+
+        private int getTzOffset() {
+            Calendar mCalendar = new GregorianCalendar();
+            TimeZone mTimeZone = mCalendar.getTimeZone();
+            int mGMTOffset = mTimeZone.getRawOffset();
+            int hours = (int) TimeUnit.HOURS.convert(mGMTOffset, TimeUnit.MILLISECONDS);
+            return hours;
         }
     }
 

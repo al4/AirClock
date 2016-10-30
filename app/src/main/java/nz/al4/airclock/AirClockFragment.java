@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -35,6 +36,7 @@ import android.widget.TextClock;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -48,18 +50,19 @@ import org.joda.time.format.DateTimeFormatter;
 public class AirClockFragment extends Fragment {
     public DateTime originTime = new DateTime();
     public DateTime destTime = new DateTime();
+    public String effectiveTz;
 
     private OnTouchListener mListener;
 
-    private TimeCalculator timeCalculator = new TimeCalculator();
-
-    private View clockView;
-    private TextView clockText;
+    private TimeCalculator timeCalculator;
 
     private TextClock textClock;
     private TextClock textDate;
+    private TextView textTz;
+
     private int textClockId = new Integer(1);
     private int textDateId = new Integer(2);
+    private int textTzId = new Integer(3);
 
     public AirClockFragment() {
         // Required empty public constructor
@@ -69,16 +72,18 @@ public class AirClockFragment extends Fragment {
         /**
          * Update the displayed time
          */
-        DateTime effectiveTime = timeCalculator.getEffectiveTime(originTime, destTime);
-        DateTime currentTime = new DateTime();
-
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm");
-        String StringEffectiveTime = fmt.print(effectiveTime);
+        Log.i("updateClock", "Updating clock with origin " + originTime.toString() + ", destination " + destTime.toString());
 
         // update our TextClock
-        String effectiveTz = timeCalculator.getEffectiveOffset(originTime, destTime);
+        timeCalculator = new TimeCalculator(originTime, destTime);
+        try {
+            effectiveTz = timeCalculator.getEffectiveOffset();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         textClock.setTimeZone(effectiveTz);
         textDate.setTimeZone(effectiveTz);
+        textTz.setText(effectiveTz);
     }
 
     @Override
@@ -104,9 +109,11 @@ public class AirClockFragment extends Fragment {
 
         View tc = setupClock();
         View td = setupDate();
+        View tz = setupTz();
 
         layout.addView(td);
         layout.addView(tc);
+        layout.addView(tz);
 
         updateClock();
 
@@ -122,7 +129,7 @@ public class AirClockFragment extends Fragment {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT));
         textClock.setTypeface(textClock.getTypeface(), Typeface.BOLD);
-        textClock.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
+        textClock.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 48);
         textClock.setGravity(Gravity.CENTER_HORIZONTAL);
 
         return textClock;
@@ -146,6 +153,23 @@ public class AirClockFragment extends Fragment {
         textDate.setFormat12Hour(dateSpan);
 
         return textDate;
+    }
+
+    private View setupTz() {
+        // add time zone
+        textTz = new TextView(getContext());
+        textTz.setId(textTzId);
+
+        RelativeLayout.LayoutParams textTzParams = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        textTzParams.addRule(RelativeLayout.BELOW, textDateId);
+        textTz.setLayoutParams(textTzParams);
+        textTz.setTypeface(textTz.getTypeface(), Typeface.BOLD);
+        textTz.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        textTz.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        return textTz;
     }
 
 

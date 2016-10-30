@@ -6,16 +6,24 @@
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never"
+        android:icon="@drawable/ic_action_settings"
+        app:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/action_takeoff_time"
         android:orderInCategory="200"
-        android:title="Takeoff Time"
+        android:title="@string/takeoff_time"
         />
     <item
         android:id="@+id/action_landing_time"
         android:orderInCategory="300"
-        android:title="Landing Time"
+        android:title="@string/landing_time"
+        />
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="100"
+        android:title="@string/action_about"
+        android:icon="@drawable/ic_info_black_24dp"
+        app:showAsAction="never"
         />
 </menu>

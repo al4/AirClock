@@ -1,0 +1,26 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/AppTheme.Dialog"
+    android:paddingBottom="@dimen/card_vertical_margin"
+    android:paddingLeft="@dimen/card_horizontal_margin"
+    android:paddingRight="@dimen/card_horizontal_margin"
+    android:paddingTop="@dimen/card_vertical_margin"
+    tools:context="nz.al4.airclock.AboutFragment"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/version_text"
+        android:gravity="top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:id="@+id/fragment_about_text"
+        android:text="@string/html_about_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

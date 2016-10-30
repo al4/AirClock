@@ -1,40 +1,30 @@
 <resources>
     <string name="app_name">Air Clock</string>
     <string name="action_settings">Settings</string>
+    <string name="action_about">About</string>
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
     <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
 
-    <string name="info_text">Air Clock slowly shifts the time between your origin and destination</string>
+    <string name="info_text">AirClock slowly shifts the time between your origin and destination</string>
     <string name="origin_text">Please set the take-off date/time</string>
     <string name="dest_text">Please set the landing date/time</string>
     <string name="placeholder_text">// insert content here \\\\</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="takeoff_time">Takeoff Time</string>
+    <string name="landing_time">Landing Time</string>
+
+    <string name="html_about_content">
+        <![CDATA[
+            <p>© 2016 Alex Forbes</p>
+            <p>AirClock is a simple clock widget, which helps reduce jet lag by
+            slowly shifting time between your origin and destination.<p>
+            <p>For more information, please see <a href="https://blog.al4.co.nz/airclock">https://blog.al4.co.nz/airclock</a>.</p>
+            <h3>Licence</h3>
+            <p>AirCLock is open source, and distributed under the GPL version 3.</p>
+        ]]>
+    </string>
 
 </resources>

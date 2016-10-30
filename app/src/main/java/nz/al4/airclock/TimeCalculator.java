@@ -18,16 +18,10 @@
  */
 package nz.al4.airclock;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.MutableDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import java.util.Date;
 
 
 /**
@@ -36,99 +30,89 @@ import java.util.Date;
 
 public class TimeCalculator {
 
-    public TimeCalculator() {
-        // empty constructor
+    public TimeCalculator(DateTime originTime, DateTime destTime) {
+        mOriginTime = originTime;
+        mDestTime = destTime;
     }
 
-    public DateTime getEffectiveTime(
-            DateTime OriginTime, DateTime DestTime
-    ) {
-        Long nowMillis = new DateTime().getMillis();
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm");
+    DateTime mOriginTime;
+    DateTime mDestTime;
 
-        // testing values
-//        MutableDateTime testDate;
-//        testDate = OriginTime.toMutableDateTime();
-//        testDate.addHours(14);
-//        Long nowMillis = testDate.getMillis();
-
+    public float getFlightLength(Boolean hours) {
         // Length of flight
-        Long flightLength = DestTime.getMillis() - OriginTime.getMillis();
-        int flightLengthHours = (int) (flightLength / (1000 * 60 * 60));
-        Log.i("timeCalc", "flightLength: " + flightLengthHours + " hours");
-
-        // Amount we're shifting time by
-        DateTimeZone originTz = OriginTime.getZone();
-        DateTimeZone destTz = DestTime.getZone();
-        long originOffset = originTz.getOffset(OriginTime.toInstant());
-        long destOffset = destTz.getOffset(DestTime.toInstant());
-        long timeShift = destOffset - originOffset;
-        Log.i("timeCalc", "shift: " + (float) (timeShift / (1000*60*60)) + " hours");
-
-        // Time elapsed since departure
-        Long elapsed = nowMillis - OriginTime.getMillis();
-        Log.i("timeCalc", "elapsed: " + (float) (elapsed / (1000*60*60)) + " hours");
-
-        // Shift ratio
-        Float shiftRatio = elapsed.floatValue() / flightLength.floatValue();
-        Log.i("timeCalc", "shift ratio: " + shiftRatio.toString());
-
-        // Shift amount
-        Float shiftMillisFloat = timeShift * shiftRatio;
-        long shiftMillis = shiftMillisFloat.longValue();
-        Log.i("timeCalc", "shift amount: " + (float) (shiftMillis / (1000*60*60)) + "hours");
-
-        // Calculated time
-        long calculatedTimeMillis = nowMillis + shiftMillis;
-        MutableDateTime calculatedTime = new MutableDateTime(calculatedTimeMillis);
-        // As the calculation is an offset of the origin time, the zone is the origin's
-        calculatedTime.setZone(OriginTime.getZone());
-
-        // Nice output format
-        Log.i("timeCalc", "calculated time: " + fmt.print(calculatedTime));
-
-        return calculatedTime.toDateTime();
-    }
-
-    public String getEffectiveOffset(DateTime originTime, DateTime destTime) {
-        Long nowMillis = new DateTime().getMillis();
-
-        // Length of flight
-        Long flightLength = destTime.getMillis() - originTime.getMillis();
+        Long flightLength = mDestTime.getMillis() - mOriginTime.getMillis();
         int flightLengthHours = (int) (flightLength / (1000 * 60 * 60));
         Log.i("offsetCalc", "flightLength: " + flightLengthHours + " hours");
+        if (hours) {
+            return flightLengthHours;
+        } else {
+            return flightLength.intValue();
+        }
+    }
 
-        // Amount we're shifting time by
-        DateTimeZone originTz = originTime.getZone();
-        DateTimeZone destTz = destTime.getZone();
-        long originOffset = originTz.getOffset(originTime.toInstant());
-        long destOffset = destTz.getOffset(destTime.toInstant());
-        long timeShift = destOffset - originOffset;
-        Log.i("offsetCalc", "shift: " + (float) (timeShift / (1000*60*60)) + " hours");
+    public float getElapsed(Boolean hours) {
+        Long nowMillis = new DateTime().getMillis();
+        Long elapsed = nowMillis - mOriginTime.getMillis();
+        float elapsedHours = (elapsed / (1000*60*60));
+        Log.i("timeCalc", "elapsed: " + elapsedHours + " hours");
+        if (hours) {
+            return elapsedHours;
+        } else {
+            return elapsed.floatValue();
+        }
+    }
+
+    public float getTotalTimeShift(Boolean hours) {
+        // Amount we're shifting time by in millis
+        DateTimeZone originTz = mOriginTime.getZone();
+        DateTimeZone destTz = mDestTime.getZone();
+        long originOffset = originTz.getOffset(mOriginTime.toInstant());
+        long destOffset = destTz.getOffset(mDestTime.toInstant());
+        Long timeShift = destOffset - originOffset;
+        Long timeShiftHours = (timeShift / (1000*60*60));
+        Log.i("timeCalc", "shift: " + timeShiftHours + " hours");
+
+        if (hours) {
+            return timeShiftHours.floatValue();
+        } else {
+            return timeShift.intValue();
+        }
+    }
+
+    public String getEffectiveOffset() throws Exception {
+        // Length of flight
+        float flightLength = getFlightLength(false);
 
         // Time elapsed since departure
-        Long elapsed = nowMillis - originTime.getMillis();
-        Log.i("offsetCalc", "elapsed: " + (float) (elapsed / (1000*60*60)) + " hours");
+        float elapsed = getElapsed(false);
 
         // Shift ratio
-        Float shiftRatio = elapsed.floatValue() / flightLength.floatValue();
+        Float shiftRatio = elapsed / flightLength;
         Log.i("offsetCalc", "shift ratio: " + shiftRatio.toString());
 
-        // Shift amount
-        Float shiftMillisFloat = timeShift * shiftRatio;
+        // Total time shift across the journey
+        float totalTimeShift = getTotalTimeShift(false);
+
+        // Time shift at current time
+        Float shiftMillisFloat = totalTimeShift * shiftRatio;
         long shiftMillis = shiftMillisFloat.longValue();
         long shiftMinutes = shiftMillis / (1000*60);
+
+        // Concert minutes to hours+minutes
         int offsetMinutes = (int) (shiftMinutes % 60);
         int offsetHours = (int) ((shiftMinutes - offsetMinutes) / 60);
+        Log.i("offsetCalc", "hours " + offsetHours + ", minutes " + offsetMinutes);
 
-        Log.i("offsetCalc", "hours " + offsetHours);
-        Log.i("offsetCalc", "minutes " + offsetMinutes);
+        if (offsetHours > 99 || offsetMinutes > 99) {
+            String msg = "offset value is greater than 99! hard to express this as a time zone...";
+            Log.e("offsetCalc", msg);
+            throw new Exception(msg);
+        }
 
+        // Output time zone string
         String hours = String.format("%02d", offsetHours);
         String minutes = String.format("%02d", offsetMinutes);
         Log.i("offsetCalc", "GMT+" + hours + minutes);
-
-//        return("GMT+" + offsetHours + offsetMinutes);
 
         return("GMT+" + hours + minutes);
     }
