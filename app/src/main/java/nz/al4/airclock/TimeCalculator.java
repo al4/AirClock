@@ -76,13 +76,15 @@ public class TimeCalculator {
         // treats destination as ahead of origin
         long forwardTimeShift = destOffset - originOffset;
         // treats destination as behind origin
-        long reverseTimeShift = destOffset + originOffset;
+        long reverseTimeShift = originOffset - destOffset;
 
-        if (forwardTimeShift > reverseTimeShift) {
+        if (forwardTimeShift < reverseTimeShift) {
             // better to go the other way around the globe!
             timeShift = forwardTimeShift;
+            Log.i("timeCalc", "using forward time shift");
         } else {
             timeShift = reverseTimeShift;
+            Log.i("timeCalc", "using reverse time shift");
         }
 
         float timeShiftHours = (timeShift / (1000*60*60));
