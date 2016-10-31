@@ -10,16 +10,6 @@
         app:showAsAction="ifRoom"
         />
     <item
-        android:id="@+id/action_takeoff_time"
-        android:orderInCategory="200"
-        android:title="@string/takeoff_time"
-        />
-    <item
-        android:id="@+id/action_landing_time"
-        android:orderInCategory="300"
-        android:title="@string/landing_time"
-        />
-    <item
         android:id="@+id/action_about"
         android:orderInCategory="100"
         android:title="@string/action_about"

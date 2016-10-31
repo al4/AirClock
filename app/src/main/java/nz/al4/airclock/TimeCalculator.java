@@ -41,7 +41,7 @@ public class TimeCalculator {
     public float getFlightLength(Boolean hours) {
         // Length of flight
         Long flightLength = mDestTime.getMillis() - mOriginTime.getMillis();
-        int flightLengthHours = (int) (flightLength / (1000 * 60 * 60));
+        float flightLengthHours = (float) (flightLength / (1000 * 60 * 60));
         Log.i("offsetCalc", "flightLength: " + flightLengthHours + " hours");
         if (hours) {
             return flightLengthHours;
@@ -51,9 +51,10 @@ public class TimeCalculator {
     }
 
     public float getElapsed(Boolean hours) {
-        Long nowMillis = new DateTime().getMillis();
+        long nowMillis = new DateTime().getMillis();
         Long elapsed = nowMillis - mOriginTime.getMillis();
-        float elapsedHours = (elapsed / (1000*60*60));
+        Log.i("timeCalc", "elapsed millis: " + elapsed);
+        float elapsedHours = (elapsed.floatValue() / (1000*60*60));
         Log.i("timeCalc", "elapsed: " + elapsedHours + " hours");
         if (hours) {
             return elapsedHours;
@@ -66,14 +67,29 @@ public class TimeCalculator {
         // Amount we're shifting time by in millis
         DateTimeZone originTz = mOriginTime.getZone();
         DateTimeZone destTz = mDestTime.getZone();
+
         long originOffset = originTz.getOffset(mOriginTime.toInstant());
         long destOffset = destTz.getOffset(mDestTime.toInstant());
-        Long timeShift = destOffset - originOffset;
-        Long timeShiftHours = (timeShift / (1000*60*60));
+
+        // TODO: calculate which way is better to shift
+        Long timeShift;
+        // treats destination as ahead of origin
+        long forwardTimeShift = destOffset - originOffset;
+        // treats destination as behind origin
+        long reverseTimeShift = destOffset + originOffset;
+
+        if (forwardTimeShift > reverseTimeShift) {
+            // better to go the other way around the globe!
+            timeShift = forwardTimeShift;
+        } else {
+            timeShift = reverseTimeShift;
+        }
+
+        float timeShiftHours = (timeShift / (1000*60*60));
         Log.i("timeCalc", "shift: " + timeShiftHours + " hours");
 
         if (hours) {
-            return timeShiftHours.floatValue();
+            return timeShiftHours;
         } else {
             return timeShift.intValue();
         }
@@ -110,11 +126,18 @@ public class TimeCalculator {
         }
 
         // Output time zone string
-        String hours = String.format("%02d", offsetHours);
-        String minutes = String.format("%02d", offsetMinutes);
-        Log.i("offsetCalc", "GMT+" + hours + minutes);
-
-        return("GMT+" + hours + minutes);
+        // Forwards or backwards?
+        if (shiftMinutes >= 0) {
+            String hours = String.format("%02d", offsetHours);
+            String minutes = String.format("%02d", offsetMinutes);
+            Log.i("offsetCalc", "GMT+" + hours + minutes);
+            return("GMT+" + hours + minutes);
+        } else {
+            String hours = String.format("%02d", offsetHours * -1);
+            String minutes = String.format("%02d", offsetMinutes * -1);
+            Log.i("offsetCalc", "GMT-" + hours + minutes);
+            return("GMT+" + hours + minutes);
+        }
     }
 
 

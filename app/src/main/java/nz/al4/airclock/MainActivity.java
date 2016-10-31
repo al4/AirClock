@@ -43,10 +43,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 public class MainActivity extends AppCompatActivity
-        implements DatePickerFragment.OnDatePickedListener,
-                   TimePickerFragment.OnTimePickedListener,
-                   TimeZonePickerFragment.OnZonePickedListener,
-        AirClockFragment.OnTouchListener
+        implements AirClockFragment.OnTouchListener
 {
 
     TextView OriginText;
@@ -98,6 +95,13 @@ public class MainActivity extends AppCompatActivity
     private void getPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        // Must set time zones before the hour and minute
+        String originTimeZone = prefs.getString("originTimeZone", null);
+        if (originTimeZone != null) {
+            DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(originTimeZone));
+            this.OriginDate.setZone(zone);
+        }
+
         String originDate = prefs.getString("takeOffDate", null);
         if (originDate != null) {
             this.OriginDate.setYear(DatePreference.getYear(originDate));
@@ -115,10 +119,10 @@ public class MainActivity extends AppCompatActivity
             Log.i("prefs", "takeOffTime is null");
         }
 
-        String originTimeZone = prefs.getString("originTimeZone", null);
-        if (originTimeZone != null) {
-            DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(originTimeZone));
-            this.OriginDate.setZone(zone);
+        String destTimeZone = prefs.getString("destTimeZone", null);
+        if (destTimeZone != null) {
+            DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(destTimeZone));
+            this.DestDate.setZone(zone);
         }
 
         String destDate = prefs.getString("landingDate", null);
@@ -136,12 +140,6 @@ public class MainActivity extends AppCompatActivity
             this.DestDate.setMinuteOfHour(TimePreference.getMinute(destTime));
         } else {
             Log.i("prefs", "landingTime is null");
-        }
-
-        String destTimeZone = prefs.getString("destTimeZone", null);
-        if (destTimeZone != null) {
-            DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(destTimeZone));
-            this.DestDate.setZone(zone);
         }
 
         setOriginDestText();
@@ -176,81 +174,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.action_about) {
             DialogFragment aboutFragment = new AboutFragment();
             aboutFragment.show(getSupportFragmentManager(), "aboutFragment");
-        } else if (id == R.id.action_landing_time) {
-            showDatePickerDialogs("landing", this.findViewById(android.R.id.content));
-            return true;
-        } else if (id == R.id.action_takeoff_time) {
-            showDatePickerDialogs("takeoff", this.findViewById(android.R.id.content));
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void showDatePickerDialogs(String event, View v) {
-        Bundle bundle = new Bundle();
-        bundle.putString("event", event);
-
-        DialogFragment timeFragment = new TimePickerFragment();
-        timeFragment.setArguments(bundle);
-        timeFragment.show(getSupportFragmentManager(), "timePicker");
-
-        DialogFragment dateFragment = new DatePickerFragment();
-        dateFragment.setArguments(bundle);
-        dateFragment.show(getSupportFragmentManager(), "datePicker");
-
-        DialogFragment timeZoneFragment = new TimeZonePickerFragment();
-        timeZoneFragment.setArguments(bundle);
-        timeZoneFragment.show(getSupportFragmentManager(), "timeZonePicker");
-
-        // fetch and return the values
-    }
-
-    public void onTimePicked(String event, int hour, int minute) {
-        if (event == "takeoff") {
-            this.OriginDate.setHourOfDay(hour);
-            this.OriginDate.setMinuteOfHour(minute);
-            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
-        } else if (event == "landing") {
-            this.DestDate.setHourOfDay(hour);
-            this.DestDate.setMinuteOfHour(minute);
-            this.DestText.setText("Selected time: " + this.DestDate.toString());
-        }
-
-        Context context = getApplicationContext();
-        Toast.makeText(context, "Event: " +event+ " Selected time: " + this.OriginDate.toString(),
-                Toast.LENGTH_LONG).show();
-
-        clockFragment.originTime = OriginDate.toDateTime();
-        clockFragment.destTime = DestDate.toDateTime();
-    }
-
-    @Override
-    public void onDatePicked(String event, int year, int month, int day) {
-        if (event == "takeoff") {
-            this.OriginDate.setYear(year);
-            this.OriginDate.setMonthOfYear(month + 1);
-            this.OriginDate.setDayOfMonth(day);
-            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
-        } else if (event == "landing") {
-            this.DestDate.setYear(year);
-            this.DestDate.setMonthOfYear(month + 1);
-            this.DestDate.setDayOfMonth(day);
-            this.DestText.setText("Selected time: " + this.DestDate.toString());
-        }
-    }
-
-    @Override
-    public void onZonePicked(String event, int offset) {
-        if (event == "takeoff") {
-            DateTimeZone zone = DateTimeZone.forOffsetHours(offset);
-            this.OriginDate.setZone(zone);
-            this.OriginText.setText("Selected time: " + this.OriginDate.toString());
-        } else if (event == "landing") {
-            DateTimeZone zone = DateTimeZone.forOffsetHours(offset);
-            this.DestDate.setZone(zone);
-            this.DestText.setText("Selected time: " + this.DestDate.toString());
-        }
     }
 
     @Override
