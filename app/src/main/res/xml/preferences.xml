@@ -1,44 +1,56 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="pref_static_base_test"
+        android:selectable="false"
+        android:persistent="false"
+        android:summary="Set the details of your flight here. Be sure to use local times for origin and destination."
+        />
 
     <PreferenceCategory android:title="Origin">
+        <Preference
+            android:key="pref_static_origin_summary"
+            android:selectable="false"
+            android:persistent="false"
+            android:summary="The origin of your flight, where you are flying from"/>
         <ListPreference
             android:key="originTimeZone"
             android:title="Time Zone"
-            android:summary="The time zone you are taking off from (origin)"
-            android:defaultValue="0"
             />
 
         <nz.al4.airclock.DatePreference
             android:key="takeOffDate"
             android:title="Take-off date"
-            android:summary="The date of your flight in the origin time zone"
+            android:summary="Not set"
             />
 
         <nz.al4.airclock.TimePreference
             android:key="takeOffTime"
             android:title="Take-off time"
-            android:summary="The time of your flight in the origin time zone"
+            android:summary="Not set"
             />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Destination">
+        <Preference
+            android:key="pref_static_dest_summary"
+            android:selectable="false"
+            android:persistent="false"
+            android:summary="The destination of your flight, where you are flying to"/>
         <ListPreference
             android:key="destTimeZone"
             android:title="Time Zone"
-            android:summary="The time zone at your destination"
-            android:defaultValue="1"
             />
 
         <nz.al4.airclock.DatePreference
             android:key="landingDate"
             android:title="Landing date"
-            android:summary="The date you land on (in the destination time zone)"
+            android:summary="Not set"
             />
 
         <nz.al4.airclock.TimePreference
             android:key="landingTime"
             android:title="Landing time"
-            android:summary="The time you land at (in the destination time zone)"
+            android:summary="Not set"
             />
     </PreferenceCategory>
 
