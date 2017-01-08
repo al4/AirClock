@@ -2,51 +2,53 @@
 
     <PreferenceCategory android:title="Origin">
         <ListPreference
-            android:title="Time Zone"
-            android:summary="GMT %s"
             android:key="originTimeZone"
+            android:title="Time Zone"
+            android:summary="The time zone you are taking off from (origin)"
             android:defaultValue="0"
             />
 
         <nz.al4.airclock.DatePreference
             android:key="takeOffDate"
             android:title="Take-off date"
-            android:summary="%s"
+            android:summary="The date of your flight in the origin time zone"
             />
 
         <nz.al4.airclock.TimePreference
             android:key="takeOffTime"
             android:title="Take-off time"
-            android:summary="%s"
+            android:summary="The time of your flight in the origin time zone"
             />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Destination">
         <ListPreference
-            android:title="Time Zone"
-            android:summary="%s"
             android:key="destTimeZone"
+            android:title="Time Zone"
+            android:summary="The time zone at your destination"
             android:defaultValue="1"
             />
 
         <nz.al4.airclock.DatePreference
             android:key="landingDate"
             android:title="Landing date"
-            android:summary="%s"
+            android:summary="The date you land on (in the destination time zone)"
             />
 
         <nz.al4.airclock.TimePreference
             android:key="landingTime"
             android:title="Landing time"
-            android:summary="%s"
+            android:summary="The time you land at (in the destination time zone)"
             />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_header_general">
         <CheckBoxPreference
             android:key="analytics"
-            android:title="Allow app to send anonymous usage data"
+            android:title="Allow anonymous usage data"
             android:defaultValue="true"
+            android:summaryOff="Anonymous usage data will not be sent"
+            android:summaryOn="Not yet implemented, but may be used in the future"
             />
     </PreferenceCategory>
 
