@@ -43,7 +43,11 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_header_general">
-
+        <CheckBoxPreference
+            android:key="analytics"
+            android:title="Allow app to send anonymous usage data"
+            android:defaultValue="true"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>
