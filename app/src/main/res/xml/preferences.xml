@@ -5,7 +5,7 @@
             android:title="Time Zone"
             android:summary="GMT %s"
             android:key="originTimeZone"
-            android:defaultValue="The time zone you are flying to. The source time zone is your device' current time zone, make sure it is set correctly!"
+            android:defaultValue="0"
             />
 
         <nz.al4.airclock.DatePreference
@@ -26,7 +26,7 @@
             android:title="Time Zone"
             android:summary="%s"
             android:key="destTimeZone"
-            android:defaultValue="The time zone you are flying to. The source time zone is your device' current time zone, make sure it is set correctly!"
+            android:defaultValue="1"
             />
 
         <nz.al4.airclock.DatePreference
