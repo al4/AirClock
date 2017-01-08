@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void getPreferences() {
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Must set time zones before the hour and minute
@@ -148,8 +149,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setOriginDestText() {
-        this.OriginText.setText(dateTimeFormatter.print(OriginDate) + " " + OriginDate.getZone().toString());
-        this.DestText.setText(dateTimeFormatter.print(DestDate) + " " + DestDate.getZone().toString());
+        this.OriginText.setText(
+                dateTimeFormatter.print(OriginDate).replace(" ", "\n") +
+                        " " + OriginDate.getZone().toString());
+        this.DestText.setText(
+                dateTimeFormatter.print(DestDate).replace(" ", "\n") +
+                        " " + DestDate.getZone().toString());
     }
 
     @Override
