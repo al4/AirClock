@@ -30,20 +30,25 @@ import org.joda.time.DateTimeZone;
 
 public class TimeCalculator {
 
-    public TimeCalculator(DateTime originTime, DateTime destTime) {
+    public TimeCalculator(DateTime originTime, DateTime destTime) throws SpaceTimeException {
         mOriginTime = originTime;
         mDestTime = destTime;
+
+        if (mDestTime.isBefore(mOriginTime)) {
+            throw new SpaceTimeException("You can not land before you take off");
+        }
     }
 
     DateTime mOriginTime;
     DateTime mDestTime;
 
-    public float getFlightLength(Boolean hours) {
+    public float getFlightLength(Boolean as_hours) {
         // Length of flight
         Long flightLength = mDestTime.getMillis() - mOriginTime.getMillis();
         float flightLengthHours = (float) (flightLength / (1000 * 60 * 60));
         Log.i("offsetCalc", "flightLength: " + flightLengthHours + " hours");
-        if (hours) {
+
+        if (as_hours) {
             return flightLengthHours;
         } else {
             return flightLength.intValue();
@@ -63,20 +68,31 @@ public class TimeCalculator {
         }
     }
 
-    public float getTotalTimeShift(Boolean hours) {
+    /**
+     * @param as_hours whether to return the shift in hours or raw int
+     * @return
+     */
+    public float getTotalTimeShift(Boolean as_hours) {
         // Amount we're shifting time by in millis
         DateTimeZone originTz = mOriginTime.getZone();
+        Log.d("origin tz", String.valueOf(originTz));
         DateTimeZone destTz = mDestTime.getZone();
+        Log.d("dest tz", String.valueOf(destTz));
 
         long originOffset = originTz.getOffset(mOriginTime.toInstant());
+        Log.d("origin offset", String.valueOf(originOffset));
         long destOffset = destTz.getOffset(mDestTime.toInstant());
+        Log.d("dest offset", String.valueOf(destOffset));
 
-        // TODO: calculate which way is better to shift
+        // calculate which way is better to shift
         Long timeShift;
-        // treats destination as ahead of origin
+        // destination as ahead of origin
         long forwardTimeShift = destOffset - originOffset;
-        // treats destination as behind origin
+        Log.d("forward shift", String.valueOf(forwardTimeShift));
+
+        // destination as behind origin
         long reverseTimeShift = originOffset - destOffset;
+        Log.d("reverse shift", String.valueOf(reverseTimeShift));
 
         if (forwardTimeShift < reverseTimeShift) {
             // better to go the other way around the globe!
@@ -90,13 +106,23 @@ public class TimeCalculator {
         float timeShiftHours = (timeShift / (1000*60*60));
         Log.i("timeCalc", "shift: " + timeShiftHours + " hours");
 
-        if (hours) {
+        if (as_hours) {
             return timeShiftHours;
         } else {
             return timeShift.intValue();
         }
     }
 
+
+    /**
+     * Calculates the current effective time zone offset in hours and minutes
+     *
+     * We work in hours and minutes mostly, because that is what the Android TextClock accepts as
+     * its timezone.
+     *
+     * @return
+     * @throws Exception
+     */
     public String getEffectiveOffset() throws Exception {
         // Length of flight
         float flightLength = getFlightLength(false);
@@ -116,7 +142,7 @@ public class TimeCalculator {
         long shiftMillis = shiftMillisFloat.longValue();
         long shiftMinutes = shiftMillis / (1000*60);
 
-        // Concert minutes to hours+minutes
+        // Convert minutes to hours+minutes
         int offsetMinutes = (int) (shiftMinutes % 60);
         int offsetHours = (int) ((shiftMinutes - offsetMinutes) / 60);
         Log.i("offsetCalc", "hours " + offsetHours + ", minutes " + offsetMinutes);
@@ -127,11 +153,17 @@ public class TimeCalculator {
             throw new Exception(msg);
         }
 
+        // Get existing hours+minutes offset
+
+        // Add to existing time zone
+
+
         // Output time zone string
         // Forwards or backwards?
         if (shiftMinutes >= 0) {
             String hours = String.format("%02d", offsetHours);
             String minutes = String.format("%02d", offsetMinutes);
+
             Log.i("offsetCalc", "GMT+" + hours + minutes);
             return("GMT+" + hours + minutes);
         } else {

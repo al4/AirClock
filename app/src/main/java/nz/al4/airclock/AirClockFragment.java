@@ -75,7 +75,12 @@ public class AirClockFragment extends Fragment {
         Log.i("updateClock", "Updating clock with origin " + originTime.toString() + ", destination " + destTime.toString());
 
         // update our TextClock
-        timeCalculator = new TimeCalculator(originTime, destTime);
+        try {
+            timeCalculator = new TimeCalculator(originTime, destTime);
+        } catch (SpaceTimeException e){
+            e.printStackTrace();
+        }
+
         try {
             effectiveTz = timeCalculator.getEffectiveOffset();
         } catch (Exception e) {
