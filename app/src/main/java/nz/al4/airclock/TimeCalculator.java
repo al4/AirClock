@@ -22,12 +22,7 @@ import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -45,49 +40,56 @@ public class TimeCalculator {
     DateTime mOriginTime;
     DateTime mDestTime;
 
-    public float getFlightLength(Boolean as_hours) throws AirClockSpaceTimeException {
+    /**
+     * Get flight length in milliseconds
+     *
+     * @return
+     * @throws AirClockSpaceTimeException
+     */
+
+    public float getFlightLength() throws AirClockSpaceTimeException {
         // Length of flight
         if (mDestTime.isBefore(mOriginTime)) {
-            Log.e("getFlightLength", "You can not land before you take off");
-            return 0;
+            String msg = "You can not land before you take off";
+            Log.e("getFlightLength", msg);
+            throw new AirClockSpaceTimeException(msg);
         }
 
         Long flightLength = mDestTime.getMillis() - mOriginTime.getMillis();
+
         float flightLengthHours = (float) (flightLength / (1000 * 60 * 60));
         Log.i("offsetCalc", "flightLength: " + flightLengthHours + " hours");
 
-        if (as_hours) {
-            return flightLengthHours;
-        } else {
-            return flightLength.intValue();
-        }
-    }
-
-    public float getElapsed(Boolean hours) {
-        long nowMillis = new DateTime().getMillis();
-        Long elapsed = nowMillis - mOriginTime.getMillis();
-        Log.i("timeCalc", "elapsed millis: " + elapsed);
-        float elapsedHours = (elapsed.floatValue() / (1000*60*60));
-        Log.i("timeCalc", "elapsed: " + elapsedHours + " hours");
-        if (hours) {
-            return elapsedHours;
-        } else {
-            return elapsed.floatValue();
-        }
+        return flightLength.intValue();
     }
 
     /**
-     * Get the total amount of time we need to shift
+     * Get elapsed time during the flight
      *
-     * @param as_hours whether to return the shift in hours or raw int
      * @return
      */
-    public float getTotalTimeShift(Boolean as_hours) {
+    public float getElapsed() {
+        long nowMillis = new DateTime().getMillis();
+        Long elapsed = nowMillis - mOriginTime.getMillis();
+        Log.i("timeCalc", "elapsed millis: " + elapsed);
+
+        int elapsedHours = msToHours(elapsed.intValue());
+        Log.i("timeCalc", "elapsed: " + elapsedHours + " hours");
+
+        return elapsed.floatValue();
+    }
+
+    /**
+     * Get the total amount of time we need to shift in minutes
+     *
+     * @return
+     */
+    public float getTotalTimeShift() throws AirClockException {
         // Amount we're shifting time by in minutes
         int originOffset = getTimeZoneOffset(mOriginTime.getZone());
-        Log.d("origin offset", String.valueOf(originOffset));
+        Log.d("getTotalTimeShift", "origin offset: " + String.valueOf(originOffset));
         int destOffset = getTimeZoneOffset(mDestTime.getZone());
-        Log.d("dest offset", String.valueOf(destOffset));
+        Log.d("getTotalTimeShift", "dest offset: " + String.valueOf(destOffset));
 
         int timeShift = (int) (24*60 - (abs(destOffset) + abs(originOffset)));
 
@@ -95,13 +97,30 @@ public class TimeCalculator {
         timeShift = timeShift % 1440;
         Log.d("getTotalTimeShift", "Time Shift: " + String.valueOf(timeShift));
 
-        if (as_hours) {
-            return timeShift / 60;
+        Integer relativeShift;
+        // Figure out if we're going forwards or backwards
+        if (originOffset + timeShift == destOffset) {
+            // forward!
+            Log.d("getTotalTimeShift", "direction: forward!");
+            relativeShift = timeShift;
+        } else if (originOffset - timeShift == destOffset) {
+            // reverse!
+            Log.d("getTotalTimeShift", "direction: reverse!");
+            relativeShift = timeShift * -1;
+        } else if (originOffset < 0) {
+            // reverse across international date line
+            Log.d("getTotalTimeShift", "direction: reverse across date line");
+            relativeShift = timeShift * -1;
+        } else if (originOffset >= 0) {
+            // forward across international date line
+            Log.d("getTotalTimeShift", "direction: forward across date line");
+            relativeShift = timeShift;
         } else {
-            return timeShift;
+            throw new AirClockException("Unhandled case");
         }
-    }
 
+        return relativeShift;
+    }
 
     /**
      * Calculates the current effective time zone offset in hours and minutes
@@ -118,22 +137,20 @@ public class TimeCalculator {
             throw new AirClockSpaceTimeException("You can not land before you take off");
         }
         // Length of flight
-        float flightLength = getFlightLength(false);
+        float flightLength = getFlightLength();
 
         // Time elapsed since departure
-        float elapsed = getElapsed(false);
+        float elapsed = getElapsed();
 
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
         Log.i("offsetCalc", "shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
-        float totalTimeShift = getTotalTimeShift(false);
+        float totalTimeShift = getTotalTimeShift();
 
         // Time shift at current time
-        Float shiftMillisFloat = totalTimeShift * shiftRatio;
-        int shiftMillis = shiftMillisFloat.intValue();
-        int shiftMinutes = shiftMillis / (1000*60);
+        float shiftMinutes = totalTimeShift * shiftRatio;
         Log.i("offsetCalc", "shift minutes: " + shiftMinutes);
 
         // Get origin UTC offset minutes
@@ -141,11 +158,11 @@ public class TimeCalculator {
         Log.i("offsetCalc", "origin offset minutes: " + originOffsetMinutes);
 
         // Add our shift to origin UTC offset
-        int offsetMins = shiftMinutes + originOffsetMinutes;
+        float offsetMins = shiftMinutes + originOffsetMinutes;
         Log.i("offsetCalc", "effective offset minutes: " + offsetMins);
 
         // Convert minutes to hours+minutes
-        Integer[] offsetHoursMinutes = minutesToHoursMinutes(offsetMins);
+        Integer[] offsetHoursMinutes = minutesToHoursMinutes((int) offsetMins);
         Integer offsetHours = offsetHoursMinutes[0];
         Integer offsetMinutes = offsetHoursMinutes[1];
         Log.i("offsetCalc", "effective offset hours: " + offsetHours + " mins: " + offsetMinutes);
@@ -209,4 +226,19 @@ public class TimeCalculator {
         return (a <= 0.0F) ? 0.0F - a : a;
     }
 
+    /**
+     * Convert milliseconds to minutes
+     */
+    public int msToMinutes(int millis) {
+        int minutes = (millis / (1000 * 60));
+        return minutes;
+    }
+
+    /**
+     * Convert milliseconds to hours
+     */
+    public int msToHours(int millis) {
+        int hours = (millis / (1000 * 60 * 60));
+        return hours;
+    }
 }

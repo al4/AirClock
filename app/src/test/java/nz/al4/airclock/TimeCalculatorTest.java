@@ -7,7 +7,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -26,20 +25,32 @@ import static org.hamcrest.Matchers.equalTo;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Log.class})
 public class TimeCalculatorTest {
-    // 24 hour flight
-    DateTime mOriginTime = new LocalDateTime(2017, 1, 1, 0, 0).toDateTime(
-        DateTimeZone.UTC
-    );
-    DateTime mDestTime = new LocalDateTime(2017, 1, 2, 12, 0).toDateTime(
-        DateTimeZone.forOffsetHours(12)
-    );
 
-    TimeCalculator mTimeCalculator;
+    public TimeCalculator TimeCalculator4h;
+    public TimeCalculator TimeCalculator10h;
+    public TimeCalculator TimeCalculator12h;
+
 
     @Before
     public void setUp() throws Exception {
         PowerMockito.mockStatic(Log.class);
-        mTimeCalculator = new TimeCalculator(mOriginTime, mDestTime);
+        // 4h offset
+        TimeCalculator4h = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10))
+        );
+
+        // 12h offset, 24h flight
+        TimeCalculator12h = new TimeCalculator(
+                new LocalDateTime(2017, 1, 1, 0, 0).toDateTime(DateTimeZone.UTC),
+                new LocalDateTime(2017, 1, 2, 12, 0).toDateTime(DateTimeZone.forOffsetHours(12))
+        );
+
+        // 10h offset
+        TimeCalculator10h = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(4))
+        );
     }
 
     @After
@@ -47,20 +58,22 @@ public class TimeCalculatorTest {
     }
 
     @Test
-    public void getFlightLength_returns_24_for_24h_flight() throws Exception, AirClockSpaceTimeException {
+    public void getFlightLength_returns_24_for_24h_flight()
+            throws Exception, AirClockSpaceTimeException {
         assertThat("flight length should be 24 hours",
-            mTimeCalculator.getFlightLength(true),
-            equalTo(new Float(24))
+            this.TimeCalculator12h.getFlightLength(),
+            equalTo(new Float(24 * 60 * 60 * 1000))
         );
     }
 
     @Test(expected = AirClockSpaceTimeException.class)
-    public void getFlightLength_throws_exception_when_land_before_depart() throws Exception, AirClockSpaceTimeException {
+    public void getFlightLength_throws_exception_when_land_before_depart()
+            throws Exception, AirClockSpaceTimeException {
         TimeCalculator lTimeCalculator = new TimeCalculator(
                 new DateTime(2017, 1, 2, 0, 0, DateTimeZone.UTC),
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.UTC)
+                new DateTime(2016, 1, 1, 0, 0, DateTimeZone.UTC)
         );
-        lTimeCalculator.getFlightLength(false);
+        lTimeCalculator.getFlightLength();
     }
 
 //    @Test
@@ -69,38 +82,26 @@ public class TimeCalculatorTest {
 //    }
 
     @Test
-    public void getTotalTimeShift_12h_diff() throws Exception {
+    public void getTotalTimeShift_12h_diff() throws Exception, AirClockException {
         assertThat("time shift should be 720 minutes",
-                mTimeCalculator.getTotalTimeShift(false),
+                TimeCalculator12h.getTotalTimeShift(),
                 equalTo(new Float(720))
         );
     }
 
     @Test
-    public void getTotalTimeShift_with_4h_reverse_diff() throws Exception {
-        TimeCalculator lTimeCalculator = new TimeCalculator(
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(10))
-        );
-        float ts = lTimeCalculator.getTotalTimeShift(false);
-
-        assertThat("time shift should be 240 minutes",
-                lTimeCalculator.getTotalTimeShift(false),
-                equalTo(new Float(240))
+    public void getTotalTimeShift_with_4h_reverse_diff() throws Exception, AirClockException {
+        assertThat("time shift should be -240 minutes",
+                TimeCalculator4h.getTotalTimeShift(),
+                equalTo(new Float(-240))
         );
     }
 
     @Test
-    public void getTotalTimeShift_with_10h_diff() throws Exception {
-        TimeCalculator lTimeCalculator = new TimeCalculator(
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(4))
-        );
-        float ts = lTimeCalculator.getTotalTimeShift(false);
-
+    public void getTotalTimeShift_with_10h_diff() throws Exception, AirClockException {
         assertThat("time shift should be 600 minutes",
-                lTimeCalculator.getTotalTimeShift(false),
-                equalTo(new Float(600))
+                TimeCalculator10h.getTotalTimeShift(),
+                equalTo(new Float(-600))
         );
     }
 
