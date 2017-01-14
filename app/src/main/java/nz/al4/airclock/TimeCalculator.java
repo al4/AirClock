@@ -22,6 +22,13 @@ import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -30,20 +37,21 @@ import org.joda.time.DateTimeZone;
 
 public class TimeCalculator {
 
-    public TimeCalculator(DateTime originTime, DateTime destTime) throws SpaceTimeException {
+    public TimeCalculator(DateTime originTime, DateTime destTime) {
         mOriginTime = originTime;
         mDestTime = destTime;
-
-        if (mDestTime.isBefore(mOriginTime)) {
-            throw new SpaceTimeException("You can not land before you take off");
-        }
     }
 
     DateTime mOriginTime;
     DateTime mDestTime;
 
-    public float getFlightLength(Boolean as_hours) {
+    public float getFlightLength(Boolean as_hours) throws AirClockSpaceTimeException {
         // Length of flight
+        if (mDestTime.isBefore(mOriginTime)) {
+            Log.e("getFlightLength", "You can not land before you take off");
+            return 0;
+        }
+
         Long flightLength = mDestTime.getMillis() - mOriginTime.getMillis();
         float flightLengthHours = (float) (flightLength / (1000 * 60 * 60));
         Log.i("offsetCalc", "flightLength: " + flightLengthHours + " hours");
@@ -73,43 +81,59 @@ public class TimeCalculator {
      * @return
      */
     public float getTotalTimeShift(Boolean as_hours) {
-        // Amount we're shifting time by in millis
-        DateTimeZone originTz = mOriginTime.getZone();
-        Log.d("origin tz", String.valueOf(originTz));
-        DateTimeZone destTz = mDestTime.getZone();
-        Log.d("dest tz", String.valueOf(destTz));
-
-        long originOffset = originTz.getOffset(mOriginTime.toInstant());
+        // Amount we're shifting time by in minutes
+        int originOffset = getTimeZoneOffset(mOriginTime.getZone());
         Log.d("origin offset", String.valueOf(originOffset));
-        long destOffset = destTz.getOffset(mDestTime.toInstant());
+        int destOffset = getTimeZoneOffset(mDestTime.getZone());
         Log.d("dest offset", String.valueOf(destOffset));
 
-        // calculate which way is better to shift
-        Long timeShift;
-        // destination as ahead of origin
-        long forwardTimeShift = destOffset - originOffset;
-        Log.d("forward shift", String.valueOf(forwardTimeShift));
+//        // calculate which way is better to shift
+//        int timeShift;
+//        // destination as ahead of origin
+//        int forwardTimeShift = (int) abs(destOffset - originOffset);
+//        Log.d("forward shift", String.valueOf(forwardTimeShift));
+//
+//        // destination as behind origin
+//        int reverseTimeShift = (int) abs(originOffset - destOffset);
+//        Log.d("reverse shift", String.valueOf(reverseTimeShift));
+//
+//        if (forwardTimeShift <= reverseTimeShift) {
+//            // better to go the other way around the globe!
+//            timeShift = forwardTimeShift;
+//            Log.i("timeCalc", "using forward time shift");
+//        } else {
+//            timeShift = reverseTimeShift;
+//            Log.i("timeCalc", "using reverse time shift");
+//        }
+//
+//        int timeShiftHours = (timeShift / 60);
+//        Log.i("timeCalc", "shift: " + timeShiftHours + " hours");
 
-        // destination as behind origin
-        long reverseTimeShift = originOffset - destOffset;
-        Log.d("reverse shift", String.valueOf(reverseTimeShift));
 
-        if (forwardTimeShift < reverseTimeShift) {
-            // better to go the other way around the globe!
-            timeShift = forwardTimeShift;
-            Log.i("timeCalc", "using forward time shift");
-        } else {
-            timeShift = reverseTimeShift;
-            Log.i("timeCalc", "using reverse time shift");
+        List<Integer> shiftValues = new ArrayList<>();
+
+        shiftValues.add(destOffset - originOffset);
+        shiftValues.add(destOffset + originOffset);
+        shiftValues.add(originOffset - destOffset);
+        shiftValues.add((int) (abs(originOffset) + abs(destOffset)));
+
+        for (int i = 0; i < shiftValues.size(); i++) {
+            Log.d("shift-value", String.valueOf(shiftValues.get(i)));
         }
 
-        float timeShiftHours = (timeShift / (1000*60*60));
-        Log.i("timeCalc", "shift: " + timeShiftHours + " hours");
+        Integer timeShift = Collections.max(shiftValues);
+        timeShift = (int) (24*60 - (abs(destOffset) + abs(originOffset)));
+
+        Log.d("getTotalTimeShift", "");
+        Log.d("getTotalTimeShift", "max shift: " + String.valueOf(timeShift));
+
+        // The offset we shift by is simply mod 12 hours of the difference
+        timeShift = timeShift % 1440;
 
         if (as_hours) {
-            return timeShiftHours;
+            return timeShift / 60;
         } else {
-            return timeShift.intValue();
+            return timeShift;
         }
     }
 
@@ -123,7 +147,11 @@ public class TimeCalculator {
      * @return
      * @throws Exception
      */
-    public String getEffectiveOffset() throws Exception {
+    public String getEffectiveOffset() throws AirClockException {
+        if (mDestTime.isBefore(mOriginTime)) {
+            Log.e("getEffectiveOffset", "Cannot get offset, destination time is before origin time");
+            throw new AirClockSpaceTimeException("You can not land before you take off");
+        }
         // Length of flight
         float flightLength = getFlightLength(false);
 
@@ -139,40 +167,81 @@ public class TimeCalculator {
 
         // Time shift at current time
         Float shiftMillisFloat = totalTimeShift * shiftRatio;
-        long shiftMillis = shiftMillisFloat.longValue();
-        long shiftMinutes = shiftMillis / (1000*60);
+        int shiftMillis = shiftMillisFloat.intValue();
+        int shiftMinutes = shiftMillis / (1000*60);
+        Log.i("offsetCalc", "shift minutes: " + shiftMinutes);
+
+        // Get origin UTC offset minutes
+        int originOffsetMinutes = getTimeZoneOffset(mOriginTime.getZone());
+        Log.i("offsetCalc", "origin offset minutes: " + originOffsetMinutes);
+
+        // Add our shift to origin UTC offset
+        int offsetMins = shiftMinutes + originOffsetMinutes;
+        Log.i("offsetCalc", "effective offset minutes: " + offsetMins);
 
         // Convert minutes to hours+minutes
-        int offsetMinutes = (int) (shiftMinutes % 60);
-        int offsetHours = (int) ((shiftMinutes - offsetMinutes) / 60);
-        Log.i("offsetCalc", "hours " + offsetHours + ", minutes " + offsetMinutes);
-
-        if (offsetHours > 99 || offsetMinutes > 99) {
-            String msg = "offset value is greater than 99! hard to express this as a time zone...";
-            Log.e("offsetCalc", msg);
-            throw new Exception(msg);
-        }
-
-        // Get existing hours+minutes offset
-
-        // Add to existing time zone
-
+        Integer[] offsetHoursMinutes = minutesToHoursMinutes(offsetMins);
+        Integer offsetHours = offsetHoursMinutes[0];
+        Integer offsetMinutes = offsetHoursMinutes[1];
+        Log.i("offsetCalc", "effective offset hours: " + offsetHours + " mins: " + offsetMinutes);
 
         // Output time zone string
         // Forwards or backwards?
-        if (shiftMinutes >= 0) {
-            String hours = String.format("%02d", offsetHours);
-            String minutes = String.format("%02d", offsetMinutes);
+        String hours = String.format("%02d", offsetHours);
+        String minutes = String.format("%02d", offsetMinutes);
 
+        if (offsetMins >= 0) {
             Log.i("offsetCalc", "GMT+" + hours + minutes);
             return("GMT+" + hours + minutes);
         } else {
-            String hours = String.format("%02d", offsetHours * -1);
-            String minutes = String.format("%02d", offsetMinutes * -1);
             Log.i("offsetCalc", "GMT-" + hours + minutes);
-            return("GMT+" + hours + minutes);
+            return("GMT-" + hours + minutes);
         }
     }
 
+    /**
+     * minutesToHoursMinutes
+     *
+     * Convert minutes to a time-zone style string of hours and minutes
+     *
+     * @return
+     */
+    public Integer[] minutesToHoursMinutes(int nMinutes) throws AirClockException {
+        int minutes = nMinutes % 60;
+        int hours = (nMinutes - minutes) / 60;
+
+        if (hours > 99 || minutes > 99) {
+            String msg = "a value is greater than 99! hard to express this as a time zone...";
+            Log.e("minutesToHoursMinutes", msg);
+            throw new AirClockException(msg);
+        }
+
+        return new Integer[] {hours, minutes};
+    }
+
+    /**
+     * With thanks to Josh Pinter at http://stackoverflow.com/questions/10900494/
+     *
+     * @param tz Time zone to get the offset for
+     * @return
+     */
+    public static Integer getTimeZoneOffset(DateTimeZone tz) {
+        Long instant = DateTime.now().getMillis();
+
+        long offsetInMilliseconds = tz.getOffset(instant);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(offsetInMilliseconds);
+
+        return (int) minutes;
+    }
+
+    /**
+     * Return absolute value of a number
+     *
+     * @param a
+     * @return
+     */
+    private static float abs(float a) {
+        return (a <= 0.0F) ? 0.0F - a : a;
+    }
 
 }

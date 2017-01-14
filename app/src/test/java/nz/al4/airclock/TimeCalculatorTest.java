@@ -4,7 +4,6 @@ import android.util.Log;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
-import org.joda.time.DateTimeUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +50,7 @@ public class TimeCalculatorTest {
         );
     }
 
-    @Test(expected = SpaceTimeException.class)
+    @Test(expected = AirClockSpaceTimeException.class)
     public void TimeCalculator_throws_exception_when_land_before_depart() throws Exception {
         TimeCalculator lTimeCalculator = new TimeCalculator(
                 new DateTime(2017, 1, 2, 0, 0, DateTimeZone.UTC),
@@ -64,11 +63,12 @@ public class TimeCalculatorTest {
 //        System.out.println(mTimeCalculator.getElapsed(true));
 //    }
 
-//    @Test
-//    public void getTotalTimeShift() throws Exception {
-//
-//    }
-//
+    @Test
+    public void getTotalTimeShift() throws Exception {
+
+
+    }
+
 //    @Test
 //    public void getEffectiveOffset() throws Exception {
 //
