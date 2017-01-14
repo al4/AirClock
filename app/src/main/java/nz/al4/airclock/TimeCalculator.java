@@ -77,6 +77,8 @@ public class TimeCalculator {
     }
 
     /**
+     * Get the total amount of time we need to shift
+     *
      * @param as_hours whether to return the shift in hours or raw int
      * @return
      */
@@ -87,48 +89,11 @@ public class TimeCalculator {
         int destOffset = getTimeZoneOffset(mDestTime.getZone());
         Log.d("dest offset", String.valueOf(destOffset));
 
-//        // calculate which way is better to shift
-//        int timeShift;
-//        // destination as ahead of origin
-//        int forwardTimeShift = (int) abs(destOffset - originOffset);
-//        Log.d("forward shift", String.valueOf(forwardTimeShift));
-//
-//        // destination as behind origin
-//        int reverseTimeShift = (int) abs(originOffset - destOffset);
-//        Log.d("reverse shift", String.valueOf(reverseTimeShift));
-//
-//        if (forwardTimeShift <= reverseTimeShift) {
-//            // better to go the other way around the globe!
-//            timeShift = forwardTimeShift;
-//            Log.i("timeCalc", "using forward time shift");
-//        } else {
-//            timeShift = reverseTimeShift;
-//            Log.i("timeCalc", "using reverse time shift");
-//        }
-//
-//        int timeShiftHours = (timeShift / 60);
-//        Log.i("timeCalc", "shift: " + timeShiftHours + " hours");
+        int timeShift = (int) (24*60 - (abs(destOffset) + abs(originOffset)));
 
-
-        List<Integer> shiftValues = new ArrayList<>();
-
-        shiftValues.add(destOffset - originOffset);
-        shiftValues.add(destOffset + originOffset);
-        shiftValues.add(originOffset - destOffset);
-        shiftValues.add((int) (abs(originOffset) + abs(destOffset)));
-
-        for (int i = 0; i < shiftValues.size(); i++) {
-            Log.d("shift-value", String.valueOf(shiftValues.get(i)));
-        }
-
-        Integer timeShift = Collections.max(shiftValues);
-        timeShift = (int) (24*60 - (abs(destOffset) + abs(originOffset)));
-
-        Log.d("getTotalTimeShift", "");
-        Log.d("getTotalTimeShift", "max shift: " + String.valueOf(timeShift));
-
-        // The offset we shift by is simply mod 12 hours of the difference
+        // The offset we shift by is simply mod 12 hours of the sum of differences from UTC
         timeShift = timeShift % 1440;
+        Log.d("getTotalTimeShift", "Time Shift: " + String.valueOf(timeShift));
 
         if (as_hours) {
             return timeShift / 60;
