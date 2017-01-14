@@ -15,6 +15,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 
 /**
  * Created by alex on 07/01/2017.
@@ -105,9 +106,50 @@ public class TimeCalculatorTest {
         );
     }
 
-//    @Test
-//    public void getEffectiveOffset() throws Exception {
-//
-//    }
+    @Test
+    public void getEffectiveOffset_with_4h_at_start() throws Exception, AirClockException {
+        System.out.println(String.valueOf(TimeCalculator4h.getEffectiveOffset()));
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
+        );
+        assertThat("time zone is same as origin at take off time",
+            TimeCalculator4h.getEffectiveOffset(),
+            equalTo("GMT-1000")
+        );
+    }
+
+    @Test
+    public void getEffectiveOffset_at_origin() throws Exception, AirClockException {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
+        );
+
+        TimeCalculator tc = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10))
+        );
+
+        assertThat("time zone is same as origin at take off time",
+                tc.getEffectiveOffset(),
+                equalTo("GMT-1000")
+        );
+    }
+
+    @Test
+    public void getEffectiveOffset_at_destination() throws Exception, AirClockException {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10)).getMillis()
+        );
+
+        TimeCalculator tc = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10))
+        );
+
+        assertThat("time zone is same as destination at landing time",
+                tc.getEffectiveOffset(),
+                equalTo("GMT+1000")
+        );
+    }
 
 }

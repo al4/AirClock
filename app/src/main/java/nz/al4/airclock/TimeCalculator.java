@@ -119,6 +119,7 @@ public class TimeCalculator {
             throw new AirClockException("Unhandled case");
         }
 
+        Log.d("getTotalTimeShift", "final shift: " + String.valueOf(relativeShift));
         return relativeShift;
     }
 
@@ -145,6 +146,7 @@ public class TimeCalculator {
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
         Log.i("offsetCalc", "shift ratio: " + shiftRatio.toString());
+        System.out.println("shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
         float totalTimeShift = getTotalTimeShift();
@@ -152,6 +154,7 @@ public class TimeCalculator {
         // Time shift at current time
         float shiftMinutes = totalTimeShift * shiftRatio;
         Log.i("offsetCalc", "shift minutes: " + shiftMinutes);
+        System.out.println("shift minutes: " + String.valueOf(shiftMinutes));
 
         // Get origin UTC offset minutes
         int originOffsetMinutes = getTimeZoneOffset(mOriginTime.getZone());
@@ -161,6 +164,9 @@ public class TimeCalculator {
         float offsetMins = shiftMinutes + originOffsetMinutes;
         Log.i("offsetCalc", "effective offset minutes: " + offsetMins);
 
+        // Invert if over the date line
+        offsetMins = invertOffsetIfDateLineCrossed(offsetMins);
+
         // Convert minutes to hours+minutes
         Integer[] offsetHoursMinutes = minutesToHoursMinutes((int) offsetMins);
         Integer offsetHours = offsetHoursMinutes[0];
@@ -169,8 +175,8 @@ public class TimeCalculator {
 
         // Output time zone string
         // Forwards or backwards?
-        String hours = String.format("%02d", offsetHours);
-        String minutes = String.format("%02d", offsetMinutes);
+        String hours = String.format("%02d", (int) abs(offsetHours));
+        String minutes = String.format("%02d", (int) abs(offsetMinutes));
 
         if (offsetMins >= 0) {
             Log.i("offsetCalc", "GMT+" + hours + minutes);
@@ -179,6 +185,31 @@ public class TimeCalculator {
             Log.i("offsetCalc", "GMT-" + hours + minutes);
             return("GMT-" + hours + minutes);
         }
+    }
+
+    /**
+     * Invert time zone when crossing the dateline
+     *
+     * When we head west and the offset is < GMT-12 or head east and we reach and offset
+     * is > GMT+13 it makes sense to invert the offset so it is closer to the destination.
+     *
+     * This is imperfect because we're making assumptions about what the actual desired time zone
+     * is. Currently, it just inverts if the time zone is ahead of GMT+13 or behind GMT-12.
+     *
+     * Apologies to anyone who lives on an affected island in the Pacific Ocean :-)
+     */
+    public float invertOffsetIfDateLineCrossed(float offsetMinutes) {
+        if (offsetMinutes < -12*60) {
+            Log.i("TimeCalc", "Inverting timezone positively");
+            return offsetMinutes + 1440;
+        }
+
+        if (offsetMinutes > 13*60) {
+            Log.i("TimeCalc", "Inverting timezone negatively");
+            return offsetMinutes - 1440;
+        }
+
+        return offsetMinutes;
     }
 
     /**
