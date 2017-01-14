@@ -146,7 +146,6 @@ public class TimeCalculator {
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
         Log.i("offsetCalc", "shift ratio: " + shiftRatio.toString());
-        System.out.println("shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
         float totalTimeShift = getTotalTimeShift();
@@ -154,7 +153,6 @@ public class TimeCalculator {
         // Time shift at current time
         float shiftMinutes = totalTimeShift * shiftRatio;
         Log.i("offsetCalc", "shift minutes: " + shiftMinutes);
-        System.out.println("shift minutes: " + String.valueOf(shiftMinutes));
 
         // Get origin UTC offset minutes
         int originOffsetMinutes = getTimeZoneOffset(mOriginTime.getZone());
