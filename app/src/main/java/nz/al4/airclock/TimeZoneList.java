@@ -51,6 +51,27 @@ public class TimeZoneList {
         return tzOffsetArray;
     }
 
+    public String[] getTimeZoneOffsetNames() {
+        ArrayList<String> tzOffsets = new ArrayList<>();
+
+        for (int i = -12; i <= 14; i++) {
+            if (i > 0) {
+                tzOffsets.add("GMT+" + String.valueOf(i));
+            }
+            else if (i < 0 ) {
+                tzOffsets.add("GMT" + String.valueOf(i));
+            }
+            else {
+                tzOffsets.add("GMT");
+            }
+        }
+
+        String[] tzOffsetArray = new String[tzOffsets.size()];
+        tzOffsetArray = tzOffsets.toArray(tzOffsetArray);
+
+        return tzOffsetArray;
+    }
+
     public String[] getTimeZoneOffsets() {
         ArrayList<String> tzOffsets = new ArrayList<>();
 

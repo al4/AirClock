@@ -55,14 +55,14 @@
 
             <TextView
                 android:gravity="left"
-                android:layout_width="220px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Origin"
                 android:textSize="@dimen/heading_text_size"
                 />
             <TextView
                 android:id="@+id/origin_text"
-                android:gravity="center"
+                android:gravity="right"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/origin_text"
@@ -91,14 +91,14 @@
 
             <TextView
                 android:gravity="left"
-                android:layout_width="220px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Destination"
                 android:textSize="@dimen/heading_text_size"
                 />
             <TextView
                 android:id="@+id/dest_text"
-                android:gravity="center"
+                android:gravity="right"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/dest_text"

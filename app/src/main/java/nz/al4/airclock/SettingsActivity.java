@@ -158,18 +158,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("landingDate"));
 
             // Build the time zone list
-            String[] tzList = new TimeZoneList().getTimeZoneOffsets();
+            String[] tzListValues = new TimeZoneList().getTimeZoneOffsets();
+            String[] tzListEntries = new TimeZoneList().getTimeZoneOffsetNames();
 
             ListPreference listPreferenceOriginTimeZone = (ListPreference) findPreference("originTimeZone");
             ListPreference listPreferenceDestTimeZone = (ListPreference) findPreference("destTimeZone");
 
             listPreferenceDestTimeZone.setDefaultValue(getTzOffset());
 
-            listPreferenceOriginTimeZone.setEntries(tzList);
-            listPreferenceOriginTimeZone.setEntryValues(tzList);
+            listPreferenceOriginTimeZone.setEntries(tzListEntries);
+            listPreferenceOriginTimeZone.setEntryValues(tzListValues);
 
-            listPreferenceDestTimeZone.setEntries(tzList);
-            listPreferenceDestTimeZone.setEntryValues(tzList);
+            listPreferenceDestTimeZone.setEntries(tzListEntries);
+            listPreferenceDestTimeZone.setEntryValues(tzListValues);
         }
 
         @Override

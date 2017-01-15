@@ -31,6 +31,7 @@ dependencies {
     testCompile 'org.powermock:powermock-module-junit4:1.6.6'
     testCompile('junit:junit:4.12',
             { exclude group: 'org.hamcrest' })
+    testCompile "joda-time:joda-time:2.9.5"
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -42,6 +43,6 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:24.2.1'
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'net.danlew:android.joda:2.9.4.3'
+    compile "net.danlew:android.joda:2.9.5.1"
 
 }

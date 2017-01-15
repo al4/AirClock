@@ -36,10 +36,6 @@ import android.widget.TextClock;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,7 +46,7 @@ import org.joda.time.format.DateTimeFormatter;
 public class AirClockFragment extends Fragment {
     public DateTime originTime = new DateTime();
     public DateTime destTime = new DateTime();
-    public String effectiveTz;
+    public String effectiveTz = "Error";
 
     private OnTouchListener mListener;
 
@@ -75,16 +71,12 @@ public class AirClockFragment extends Fragment {
         Log.i("updateClock", "Updating clock with origin " + originTime.toString() + ", destination " + destTime.toString());
 
         // update our TextClock
-        try {
-            timeCalculator = new TimeCalculator(originTime, destTime);
-        } catch (SpaceTimeException e){
-            e.printStackTrace();
-        }
+        timeCalculator = new TimeCalculator(originTime, destTime);
 
         try {
             effectiveTz = timeCalculator.getEffectiveOffset();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (AirClockException e) {
+            Log.e("updateClock", "Could not get offset, check settings");
         }
         textClock.setTimeZone(effectiveTz);
         textDate.setTimeZone(effectiveTz);
