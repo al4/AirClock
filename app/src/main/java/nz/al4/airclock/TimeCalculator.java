@@ -72,7 +72,6 @@ public class TimeCalculator {
         }
     }
 
-
     /**
      * Get flight length in milliseconds
      *
@@ -80,12 +79,12 @@ public class TimeCalculator {
      * @throws AirClockSpaceTimeException
      */
 
-    public float getFlightLength() throws AirClockSpaceTimeException {
+    public float getFlightLength() {
         // Length of flight
         if (mDestTime.isBefore(mOriginTime)) {
             String msg = "You can not land before you take off";
             Log.e("getFlightLength", msg);
-            throw new AirClockSpaceTimeException(msg);
+            return 0;
         }
 
         Long flightLength = mDestTime.getMillis() - mOriginTime.getMillis();
@@ -109,7 +108,11 @@ public class TimeCalculator {
         int elapsedHours = msToHours(elapsed.intValue());
         Log.d("timeCalc", "elapsed: " + elapsedHours + " hours");
 
-        return elapsed.floatValue();
+        if (elapsed > 0) {
+            return elapsed.floatValue();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -124,40 +127,54 @@ public class TimeCalculator {
         int destOffset = getTimeZoneOffset(mDestTime.getZone());
         Log.d("getTotalTimeShift", "dest offset: " + String.valueOf(destOffset));
 
-        int timeShift = (int) (24*60 - (abs(destOffset) + abs(originOffset)));
-
-        // The offset we shift by is simply mod 12 hours of the sum of differences from UTC
-        timeShift = timeShift % 1440;
-        Log.d("getTotalTimeShift", "Time Shift: " + String.valueOf(timeShift));
+        int simpleDiff = destOffset - originOffset;
 
         Integer relativeShift;
-        // Figure out if we're going forwards or backwards
-        if (originOffset + timeShift == destOffset) {
-            // forward!
-            Log.d("getTotalTimeShift", "direction: forward!");
-            relativeShift = timeShift;
+
+        Log.e("Simple diff", String.valueOf(simpleDiff));
+        if (simpleDiff <= 12*60 && simpleDiff >= -12*60) {
+            // Use simple difference
+            relativeShift = simpleDiff;
+            Log.d("getTotalTimeShift", "Using simple difference for timeshift");
+        }
+        else {
+            // more complicated....
+            int timeShift = (int) (24 * 60 - (abs(destOffset) + abs(originOffset)));
+
+            // The offset we shift by is simply mod 24 hours of the sum of differences from UTC
+            timeShift = timeShift % 1440;
+            Log.d("getTotalTimeShift", "Time Shift: " + String.valueOf(timeShift));
+
+            // Figure out if we're going forwards or backwards
+            if (originOffset + timeShift == destOffset) {
+                // forward!
+                Log.d("getTotalTimeShift", "direction: forward!");
+                relativeShift = timeShift;
+                mCrossesDateLine = false;
+            } else if (originOffset - timeShift == destOffset) {
+                // reverse!
+                Log.d("getTotalTimeShift", "direction: reverse!");
+                relativeShift = timeShift * -1;
+                mCrossesDateLine = false;
+            } else if (originOffset < 0) {
+                // reverse across international date line
+                Log.d("getTotalTimeShift", "direction: reverse across date line");
+                relativeShift = timeShift * -1;
+                mCrossesDateLine = true;
+            } else if (originOffset >= 0) {
+                // forward across international date line
+                Log.d("getTotalTimeShift", "direction: forward across date line");
+                relativeShift = timeShift;
+                mCrossesDateLine = true;
+            } else {
+                throw new AirClockException("Unhandled case in getTotalTimeShift");
+            }
+        }
+
+        if (relativeShift >= 0) {
             this.setmDirection("forward");
-            mCrossesDateLine = false;
-        } else if (originOffset - timeShift == destOffset) {
-            // reverse!
-            Log.d("getTotalTimeShift", "direction: reverse!");
-            relativeShift = timeShift * -1;
-            this.setmDirection("reverse");
-            mCrossesDateLine = false;
-        } else if (originOffset < 0) {
-            // reverse across international date line
-            Log.d("getTotalTimeShift", "direction: reverse across date line");
-            relativeShift = timeShift * -1;
-            this.setmDirection("reverse");
-            mCrossesDateLine = true;
-        } else if (originOffset >= 0) {
-            // forward across international date line
-            Log.d("getTotalTimeShift", "direction: forward across date line");
-            relativeShift = timeShift;
-            this.setmDirection("forward");
-            mCrossesDateLine = true;
         } else {
-            throw new AirClockException("Unhandled case");
+            this.setmDirection("reverse");
         }
 
         Log.d("getTotalTimeShift", "final shift: " + String.valueOf(relativeShift));
@@ -165,31 +182,29 @@ public class TimeCalculator {
     }
 
     /**
+     * Get the total length of the flight
+     * @return
+     */
+    public float getFlightProgress() {
+        float flightLength = getFlightLength();
+
+        // Time elapsed since departure
+        float elapsed = getElapsed();
+
+        // Shift ratio
+        Float shiftRatio = elapsed / flightLength;
+        Log.d("getFlightProgress", shiftRatio.toString());
+
+        return shiftRatio;
+    }
+
+    /**
      * Calculates the current effective time zone offset in hours and minutes
-     *
-     * We work in hours and minutes mostly, because that is what the Android TextClock accepts as
-     * its timezone.
      *
      * @return
      * @throws Exception
      */
-    public String getEffectiveOffset() throws AirClockException {
-        if (mDestTime.isBefore(mOriginTime)) {
-            Log.e("getEffectiveOffset", "Cannot get offset, destination time is before origin time");
-//            throw new AirClockSpaceTimeException("You can not land before you take off");
-            return "Destination is before Origin";
-        }
-
-        if (DateTime.now().isAfter(mDestTime)) {
-            Log.w("getEffectiveOffset", "Outside of flight time");
-            return "You have arrived";
-        }
-
-        if (DateTime.now().isBefore(mOriginTime)){
-            Log.w("getEffectiveOffset", "Outside of flight time");
-            return "You have not taken off yet";
-        }
-
+    public float getEffectiveOffsetMinutes() {
         // Length of flight
         float flightLength = getFlightLength();
 
@@ -201,7 +216,12 @@ public class TimeCalculator {
         Log.d("offsetCalc", "shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
-        float totalTimeShift = getTotalTimeShift();
+        float totalTimeShift = 0;
+        try {
+            totalTimeShift = getTotalTimeShift();
+        } catch (AirClockException e) {
+            Log.w("getOffset", "Could not get time shift");
+        }
 
         // Time shift at current time
         float shiftMinutes = totalTimeShift * shiftRatio;
@@ -214,6 +234,34 @@ public class TimeCalculator {
         // Add our shift to origin UTC offset
         float offsetMins = shiftMinutes + originOffsetMinutes;
         Log.i("offsetCalc", "effective offset minutes: " + offsetMins);
+
+        return offsetMins;
+    }
+
+    /**
+     * Get the offset as a text time zone, for consumption by the TextClock widget
+     *
+     * @return
+     * @throws AirClockException
+     */
+    public String getEffectiveOffsetText() {
+        if (mDestTime.isBefore(mOriginTime)) {
+            Log.e("offsetString", "Cannot get offset, destination time is before origin time");
+//            throw new AirClockSpaceTimeException("You can not land before you take off");
+            return "Destination is before Origin";
+        }
+
+        if (DateTime.now().isAfter(mDestTime)) {
+            Log.w("offsetString", "Outside of flight time");
+            return "You have arrived";
+        }
+
+        if (DateTime.now().isBefore(mOriginTime)){
+            Log.w("offsetString", "Outside of flight time");
+            return "You have not taken off yet";
+        }
+
+        float offsetMins = getEffectiveOffsetMinutes();
 
         // Invert if over the date line
         offsetMins = invertOffsetIfDateLineCrossed(offsetMins);
@@ -237,6 +285,51 @@ public class TimeCalculator {
             return("GMT-" + hours + minutes);
         }
     }
+
+    /**
+     * Whether it is less of a time-shift to cross the international date line, or go the other way
+     *
+     * @return
+     */
+    public boolean crossesDateLine() {
+        float offsetMinutes = getEffectiveOffsetMinutes();
+
+        if (offsetMinutes < -12*60) {
+            Log.d("TimeCalc", "Inverting timezone positively");
+            return true;
+        }
+
+        else if (offsetMinutes > 13*60) {
+            Log.d("TimeCalc", "Inverting timezone negatively");
+            return true;
+        }
+
+        else {
+            return false;
+
+        }
+    }
+
+    /**
+     * Figure out whether we are going forwards or backwards
+     *
+     * @return
+     */
+    public final String shiftDirection() {
+        float relativeShift;
+        try {
+            relativeShift = getTotalTimeShift();
+        } catch (AirClockException e) {
+            return null;
+        }
+
+        if (relativeShift >= 0) {
+            return "forward";
+        } else {
+            return "reverse";
+        }
+    }
+
 
     /**
      * Invert time zone when crossing the dateline
@@ -270,20 +363,16 @@ public class TimeCalculator {
      *
      * @return
      */
-    public Integer[] minutesToHoursMinutes(int nMinutes) throws AirClockException {
+    public Integer[] minutesToHoursMinutes(int nMinutes) {
         int minutes = nMinutes % 60;
         int hours = (nMinutes - minutes) / 60;
-
-        if (hours > 99 || minutes > 99) {
-            String msg = "a value is greater than 99! hard to express this as a time zone...";
-            Log.e("minutesToHoursMinutes", msg);
-            throw new AirClockException(msg);
-        }
 
         return new Integer[] {hours, minutes};
     }
 
     /**
+     * Calculate the current offset from a given time zone
+     *
      * With thanks to Josh Pinter at http://stackoverflow.com/questions/10900494/
      *
      * @param tz Time zone to get the offset for

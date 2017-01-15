@@ -21,7 +21,6 @@ package nz.al4.airclock;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
 import android.util.Log;
@@ -73,11 +72,7 @@ public class AirClockFragment extends Fragment {
         // update our TextClock
         timeCalculator = new TimeCalculator(originTime, destTime);
 
-        try {
-            effectiveTz = timeCalculator.getEffectiveOffset();
-        } catch (AirClockException e) {
-            Log.e("updateClock", "Could not get offset, check settings");
-        }
+        effectiveTz = timeCalculator.getEffectiveOffsetText();
         textClock.setTimeZone(effectiveTz);
         textDate.setTimeZone(effectiveTz);
         textTz.setText(effectiveTz);

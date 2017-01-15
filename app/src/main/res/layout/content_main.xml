@@ -107,6 +107,96 @@
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view_info"
+        style="@style/AppTheme.CardViewStyle"
+        android:layout_gravity="top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/card_view_destination">
+
+        <TableLayout
+            android:paddingBottom="@dimen/card_vertical_margin"
+            android:paddingLeft="@dimen/card_horizontal_margin"
+            android:paddingRight="@dimen/card_horizontal_margin"
+            android:paddingTop="@dimen/card_vertical_margin"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:stretchColumns="*"
+            android:orientation="vertical">
+
+            <TableRow>
+                <TextView
+                    android:text="Flight Length"
+                    android:textSize="@dimen/info_text_size"
+                    android:paddingRight="@dimen/text_padding"
+                    />
+                <TextView
+                    android:id="@+id/info_flight_length"
+                    android:gravity="right"
+                    android:text="unset"
+                    android:textSize="@dimen/info_text_size"
+                    />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:text="Flight Progress"
+                    android:textSize="@dimen/info_text_size"
+                    android:paddingRight="@dimen/text_padding"
+                    />
+                <TextView
+                    android:id="@+id/info_flight_progress"
+                    android:gravity="right"
+                    android:text="unset"
+                    android:textSize="@dimen/info_text_size"
+                    />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:text="Time shift"
+                    android:textSize="@dimen/info_text_size"
+                    android:paddingRight="@dimen/text_padding"
+                    />
+                <TextView
+                    android:id="@+id/info_shift_amount"
+                    android:gravity="right"
+                    android:text="unset"
+                    android:textSize="@dimen/info_text_size"
+                    />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:text="Time shift direction"
+                    android:textSize="@dimen/info_text_size"
+                    android:paddingRight="@dimen/text_padding"
+                    />
+                <TextView
+                    android:id="@+id/info_shift_direction"
+                    android:gravity="right"
+                    android:text="unset"
+                    android:textSize="@dimen/info_text_size"
+                    />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:text="Crossing international date line"
+                    android:textSize="@dimen/info_text_size"
+                    android:paddingRight="@dimen/card_horizontal_margin"
+                    />
+                <TextView
+                    android:id="@+id/info_crosses_dateline"
+                    android:gravity="right"
+                    android:text="unset"
+                    android:textSize="@dimen/info_text_size"
+                    />
+            </TableRow>
+        </TableLayout>
+    </android.support.v7.widget.CardView>
 
     <!--<Button-->
         <!--android:id="@+id/takeoff_button"-->

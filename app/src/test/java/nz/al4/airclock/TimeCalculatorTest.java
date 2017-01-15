@@ -67,14 +67,17 @@ public class TimeCalculatorTest {
         );
     }
 
-    @Test(expected = AirClockSpaceTimeException.class)
-    public void getFlightLength_throws_exception_when_land_before_depart()
+    @Test
+    public void getFlightLength_returns_zero_when_land_before_depart()
             throws Exception, AirClockSpaceTimeException {
         TimeCalculator lTimeCalculator = new TimeCalculator(
                 new DateTime(2017, 1, 2, 0, 0, DateTimeZone.UTC),
                 new DateTime(2016, 1, 1, 0, 0, DateTimeZone.UTC)
         );
-        lTimeCalculator.getFlightLength();
+        assertThat("flight length should be zero for an impossible flight",
+                lTimeCalculator.getFlightLength(),
+                equalTo(new Float(0))
+        );
     }
 
 //    @Test
@@ -100,7 +103,7 @@ public class TimeCalculatorTest {
 
     @Test
     public void getTotalTimeShift_with_10h_diff() throws Exception, AirClockException {
-        assertThat("time shift should be 600 minutes",
+        assertThat("time shift should be -600 minutes",
                 TimeCalculator10h.getTotalTimeShift(),
                 equalTo(new Float(-600))
         );
@@ -108,30 +111,13 @@ public class TimeCalculatorTest {
 
     @Test
     public void getEffectiveOffset_with_4h_at_start() throws Exception, AirClockException {
-        System.out.println(String.valueOf(TimeCalculator4h.getEffectiveOffset()));
+        System.out.println(String.valueOf(TimeCalculator4h.getEffectiveOffsetText()));
         setCurrentMillisFixed(
                 new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
         );
         assertThat("time zone is same as origin at take off time",
-            TimeCalculator4h.getEffectiveOffset(),
+            TimeCalculator4h.getEffectiveOffsetText(),
             equalTo("GMT-1000")
-        );
-    }
-
-    @Test
-    public void getEffectiveOffset_at_origin() throws Exception, AirClockException {
-        setCurrentMillisFixed(
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
-        );
-
-        TimeCalculator tc = new TimeCalculator(
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
-                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10))
-        );
-
-        assertThat("time zone is same as origin at take off time",
-                tc.getEffectiveOffset(),
-                equalTo("GMT-1000")
         );
     }
 
@@ -147,9 +133,27 @@ public class TimeCalculatorTest {
         );
 
         assertThat("time zone is same as destination at landing time",
-                tc.getEffectiveOffset(),
+                tc.getEffectiveOffsetText(),
                 equalTo("GMT+1000")
         );
     }
+
+    @Test
+    public void getEffectiveOffset_at_origin() throws Exception, AirClockException {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
+        );
+
+        TimeCalculator tc = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10))
+        );
+
+        assertThat("time zone is same as origin at take off time",
+                tc.getEffectiveOffsetText(),
+                equalTo("GMT-1000")
+        );
+    }
+
 
 }

@@ -18,7 +18,6 @@
  */
 package nz.al4.airclock;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -34,7 +33,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -46,19 +44,28 @@ public class MainActivity extends AppCompatActivity
         implements AirClockFragment.OnTouchListener
 {
 
-    TextView OriginText;
-    TextView DestText;
+    TextView mOriginText;
+    TextView mDestText;
+    TextView mInfoFlightLength;
+    TextView mInfoFlightProgress;
+    TextView mInfoShiftDirection;
+    TextView mInfoShiftAmount;
+    TextView mInfoCrossesDateLine;
 
-    MutableDateTime OriginDate = new DateTime().toMutableDateTime();
-    MutableDateTime DestDate = new DateTime().toMutableDateTime();
-
-    AirClockFragment clockFragment = new AirClockFragment();
+    MutableDateTime mOriginDate = new DateTime().toMutableDateTime();
+    MutableDateTime mDestDate = new DateTime().toMutableDateTime();
 
     DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm");
+
+    TimeCalculator mTimeCalculator;
+    AirClockFragment mClockFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mClockFragment = new AirClockFragment();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -70,18 +77,24 @@ public class MainActivity extends AppCompatActivity
 
                 Snackbar.make(view, "Time Zone recalculated", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                clockFragment.updateClock();
+                mClockFragment.updateClock();
 
             }
         });
 
-        this.OriginText = (TextView) findViewById(R.id.origin_text);
-        this.DestText = (TextView) findViewById(R.id.dest_text);
+        this.mOriginText = (TextView) findViewById(R.id.origin_text);
+        this.mDestText = (TextView) findViewById(R.id.dest_text);
+        this.mInfoFlightLength = (TextView) findViewById(R.id.info_flight_length);
+        this.mInfoFlightProgress = (TextView) findViewById(R.id.info_flight_progress);
+        this.mInfoShiftAmount = (TextView) findViewById(R.id.info_shift_amount);
+        this.mInfoShiftDirection = (TextView) findViewById(R.id.info_shift_direction);
+        this.mInfoCrossesDateLine = (TextView) findViewById(R.id.info_crosses_dateline);
+
         getPreferences();
 
         // Setup the clock fragment
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.card_view_clock_layout, clockFragment);
+        ft.replace(R.id.card_view_clock_layout, mClockFragment);
         ft.commit();
     }
 
@@ -89,7 +102,8 @@ public class MainActivity extends AppCompatActivity
     public void onResume() {
         super.onResume();
         getPreferences();
-        clockFragment.updateClock();
+        mClockFragment.updateClock();
+        setTextViews();
     }
 
     private void getPreferences() {
@@ -100,22 +114,22 @@ public class MainActivity extends AppCompatActivity
         String originTimeZone = prefs.getString("originTimeZone", null);
         if (originTimeZone != null) {
             DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(originTimeZone));
-            this.OriginDate.setZone(zone);
+            this.mOriginDate.setZone(zone);
         }
 
         String originDate = prefs.getString("takeOffDate", null);
         if (originDate != null) {
-            this.OriginDate.setYear(DatePreference.getYear(originDate));
-            this.OriginDate.setMonthOfYear(DatePreference.getMonth(originDate));
-            this.OriginDate.setDayOfMonth(DatePreference.getDay(originDate));
+            this.mOriginDate.setYear(DatePreference.getYear(originDate));
+            this.mOriginDate.setMonthOfYear(DatePreference.getMonth(originDate));
+            this.mOriginDate.setDayOfMonth(DatePreference.getDay(originDate));
         } else {
             Log.i("prefs", "takeOffDate is null");
         }
 
         String originTime = prefs.getString("takeOffTime", null);
         if (originTime != null) {
-            this.OriginDate.setHourOfDay(TimePreference.getHour(originTime));
-            this.OriginDate.setMinuteOfHour(TimePreference.getMinute(originTime));
+            this.mOriginDate.setHourOfDay(TimePreference.getHour(originTime));
+            this.mOriginDate.setMinuteOfHour(TimePreference.getMinute(originTime));
         } else {
             Log.i("prefs", "takeOffTime is null");
         }
@@ -123,38 +137,55 @@ public class MainActivity extends AppCompatActivity
         String destTimeZone = prefs.getString("destTimeZone", null);
         if (destTimeZone != null) {
             DateTimeZone zone = DateTimeZone.forOffsetHours(Integer.parseInt(destTimeZone));
-            this.DestDate.setZone(zone);
+            this.mDestDate.setZone(zone);
         }
 
         String destDate = prefs.getString("landingDate", null);
         if (destDate != null) {
-            this.DestDate.setYear(DatePreference.getYear(destDate));
-            this.DestDate.setMonthOfYear(DatePreference.getMonth(destDate));
-            this.DestDate.setDayOfMonth(DatePreference.getDay(destDate));
+            this.mDestDate.setYear(DatePreference.getYear(destDate));
+            this.mDestDate.setMonthOfYear(DatePreference.getMonth(destDate));
+            this.mDestDate.setDayOfMonth(DatePreference.getDay(destDate));
         } else {
             Log.i("prefs", "landingDate is null");
         }
 
         String destTime = prefs.getString("landingTime", null);
         if (destTime != null) {
-            this.DestDate.setHourOfDay(TimePreference.getHour(destTime));
-            this.DestDate.setMinuteOfHour(TimePreference.getMinute(destTime));
+            this.mDestDate.setHourOfDay(TimePreference.getHour(destTime));
+            this.mDestDate.setMinuteOfHour(TimePreference.getMinute(destTime));
         } else {
             Log.i("prefs", "landingTime is null");
         }
 
-        setOriginDestText();
-        clockFragment.originTime = OriginDate.toDateTime();
-        clockFragment.destTime = DestDate.toDateTime();
+        setTextViews();
+        mClockFragment.originTime = mOriginDate.toDateTime();
+        mClockFragment.destTime = mDestDate.toDateTime();
     }
 
-    private void setOriginDestText() {
-        this.OriginText.setText(
-                dateTimeFormatter.print(OriginDate).replace(" ", "\n") +
-                        " " + OriginDate.getZone().toString());
-        this.DestText.setText(
-                dateTimeFormatter.print(DestDate).replace(" ", "\n") +
-                        " " + DestDate.getZone().toString());
+    private void setTextViews() {
+        TimeCalculator tc = new TimeCalculator(mOriginDate.toDateTime(), mDestDate.toDateTime());
+
+        float flightLength = tc.msToHours((int) tc.getFlightLength());
+        float flightProgress = tc.getFlightProgress();
+        float shiftAmount = 0;
+        try {
+            shiftAmount = tc.getTotalTimeShift() / 60;
+        } catch (AirClockException e) { }
+        String shiftDirection = (tc.shiftDirection());
+        String crossesDateLine = (tc.crossesDateLine()) ? "yes" : "no";
+
+        this.mOriginText.setText(
+                dateTimeFormatter.print(mOriginDate).replace(" ", "\n") +
+                        " " + mOriginDate.getZone().toString());
+        this.mDestText.setText(
+                dateTimeFormatter.print(mDestDate).replace(" ", "\n") +
+                        " " + mDestDate.getZone().toString());
+
+        this.mInfoFlightLength.setText(String.valueOf(flightLength) + " hours");
+        this.mInfoFlightProgress.setText(String.format("%,.0f%%", flightProgress * 100));
+        this.mInfoShiftAmount.setText(String.valueOf(shiftAmount + " hours"));
+        this.mInfoShiftDirection.setText(String.valueOf(shiftDirection));
+        this.mInfoCrossesDateLine.setText(String.valueOf(crossesDateLine));
     }
 
     @Override
