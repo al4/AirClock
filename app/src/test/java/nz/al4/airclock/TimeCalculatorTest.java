@@ -33,6 +33,7 @@ public class TimeCalculatorTest {
     private TimeCalculator TcPerthLondon;
     private TimeCalculator TcAmsterdamNewYork;
     private TimeCalculator TcImpossible;
+    private TimeCalculator TcSanFranWashington;
 
     @Before
     public void setUp() throws Exception {
@@ -66,6 +67,12 @@ public class TimeCalculatorTest {
                 new DateTime(2017, 1, 1, 1, 0, DateTimeZone.forOffsetHours(1)),
                 new DateTime(2017, 1, 1, 3, 0, DateTimeZone.forOffsetHours(-5))
 
+        );
+
+        // San Franciso to Washington, 6h flight
+        TcSanFranWashington = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-8)),
+                new DateTime(2017, 1, 1, 9, 0, DateTimeZone.forOffsetHours(-5))
         );
 
         // Impossible flight, lands before takeoff
@@ -103,7 +110,14 @@ public class TimeCalculatorTest {
                 TcAmsterdamNewYork.getFlightLength(),
                 equalTo(new Float(8 * 60 * 60 * 1000))
         );
+    }
 
+    @Test
+    public void getFlightLength_returns_6h_SanFran_to_Washington() throws Exception {
+        assertThat("flight length should be 6h",
+                TcSanFranWashington.getFlightLength(),
+                equalTo(new Float(6 * 60 * 60 * 1000))
+        );
     }
 
 //    @Test
