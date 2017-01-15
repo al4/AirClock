@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                Snackbar.make(view, "Clock updated", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Time Zone recalculated", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 clockFragment.updateClock();
 
