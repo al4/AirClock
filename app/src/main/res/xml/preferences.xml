@@ -15,6 +15,7 @@
         <ListPreference
             android:key="originTimeZone"
             android:title="Time Zone"
+            android:summary="Not set"
             />
 
         <nz.al4.airclock.DatePreference
@@ -39,6 +40,7 @@
         <ListPreference
             android:key="destTimeZone"
             android:title="Time Zone"
+            android:summary="Not set"
             />
 
         <nz.al4.airclock.DatePreference
