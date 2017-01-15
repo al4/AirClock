@@ -23,6 +23,7 @@ import android.util.Log;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 
@@ -39,6 +40,38 @@ public class TimeCalculator {
 
     DateTime mOriginTime;
     DateTime mDestTime;
+    String mDirection; // forward or reverse
+    Boolean mCrossesDateLine;
+    String mStatus; // atOrigin, atDestination or inFlight
+
+    /**
+     * Setter for mStatus
+     * @param status
+     * @throws AirClockException
+     */
+    private void setmStatus(String status) throws AirClockException {
+        String[] statuses = {"atOrigin", "arDestination", "inFlight"};
+        if (Arrays.asList(statuses).contains(status)) {
+            mStatus = status;
+        } else {
+            throw new AirClockException("Invalid status value");
+        }
+    }
+
+    /**
+     * Setter for mDirection
+     * @param direction
+     * @throws AirClockException
+     */
+    private void setmDirection(String direction) throws AirClockException {
+        String[] directions = {"forward", "reverse"};
+        if (Arrays.asList(directions).contains(direction)) {
+            mDirection = direction;
+        } else {
+            throw new AirClockException("Invalid direction");
+        }
+    }
+
 
     /**
      * Get flight length in milliseconds
@@ -58,7 +91,7 @@ public class TimeCalculator {
         Long flightLength = mDestTime.getMillis() - mOriginTime.getMillis();
 
         float flightLengthHours = (float) (flightLength / (1000 * 60 * 60));
-        Log.i("offsetCalc", "flightLength: " + flightLengthHours + " hours");
+        Log.d("offsetCalc", "flightLength: " + flightLengthHours + " hours");
 
         return flightLength.intValue();
     }
@@ -71,10 +104,10 @@ public class TimeCalculator {
     public float getElapsed() {
         long nowMillis = new DateTime().getMillis();
         Long elapsed = nowMillis - mOriginTime.getMillis();
-        Log.i("timeCalc", "elapsed millis: " + elapsed);
+        Log.d("timeCalc", "elapsed millis: " + elapsed);
 
         int elapsedHours = msToHours(elapsed.intValue());
-        Log.i("timeCalc", "elapsed: " + elapsedHours + " hours");
+        Log.d("timeCalc", "elapsed: " + elapsedHours + " hours");
 
         return elapsed.floatValue();
     }
@@ -103,18 +136,26 @@ public class TimeCalculator {
             // forward!
             Log.d("getTotalTimeShift", "direction: forward!");
             relativeShift = timeShift;
+            this.setmDirection("forward");
+            mCrossesDateLine = false;
         } else if (originOffset - timeShift == destOffset) {
             // reverse!
             Log.d("getTotalTimeShift", "direction: reverse!");
             relativeShift = timeShift * -1;
+            this.setmDirection("reverse");
+            mCrossesDateLine = false;
         } else if (originOffset < 0) {
             // reverse across international date line
             Log.d("getTotalTimeShift", "direction: reverse across date line");
             relativeShift = timeShift * -1;
+            this.setmDirection("reverse");
+            mCrossesDateLine = true;
         } else if (originOffset >= 0) {
             // forward across international date line
             Log.d("getTotalTimeShift", "direction: forward across date line");
             relativeShift = timeShift;
+            this.setmDirection("forward");
+            mCrossesDateLine = true;
         } else {
             throw new AirClockException("Unhandled case");
         }
@@ -135,8 +176,20 @@ public class TimeCalculator {
     public String getEffectiveOffset() throws AirClockException {
         if (mDestTime.isBefore(mOriginTime)) {
             Log.e("getEffectiveOffset", "Cannot get offset, destination time is before origin time");
-            throw new AirClockSpaceTimeException("You can not land before you take off");
+//            throw new AirClockSpaceTimeException("You can not land before you take off");
+            return "Destination is before Origin";
         }
+
+        if (DateTime.now().isAfter(mDestTime)) {
+            Log.w("getEffectiveOffset", "Outside of flight time");
+            return "You have arrived";
+        }
+
+        if (DateTime.now().isBefore(mOriginTime)){
+            Log.w("getEffectiveOffset", "Outside of flight time");
+            return "You have not taken off yet";
+        }
+
         // Length of flight
         float flightLength = getFlightLength();
 
@@ -145,18 +198,18 @@ public class TimeCalculator {
 
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
-        Log.i("offsetCalc", "shift ratio: " + shiftRatio.toString());
+        Log.d("offsetCalc", "shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
         float totalTimeShift = getTotalTimeShift();
 
         // Time shift at current time
         float shiftMinutes = totalTimeShift * shiftRatio;
-        Log.i("offsetCalc", "shift minutes: " + shiftMinutes);
+        Log.d("offsetCalc", "shift minutes: " + shiftMinutes);
 
         // Get origin UTC offset minutes
         int originOffsetMinutes = getTimeZoneOffset(mOriginTime.getZone());
-        Log.i("offsetCalc", "origin offset minutes: " + originOffsetMinutes);
+        Log.d("offsetCalc", "origin offset minutes: " + originOffsetMinutes);
 
         // Add our shift to origin UTC offset
         float offsetMins = shiftMinutes + originOffsetMinutes;
@@ -169,7 +222,7 @@ public class TimeCalculator {
         Integer[] offsetHoursMinutes = minutesToHoursMinutes((int) offsetMins);
         Integer offsetHours = offsetHoursMinutes[0];
         Integer offsetMinutes = offsetHoursMinutes[1];
-        Log.i("offsetCalc", "effective offset hours: " + offsetHours + " mins: " + offsetMinutes);
+        Log.d("offsetCalc", "effective offset hours: " + offsetHours + " mins: " + offsetMinutes);
 
         // Output time zone string
         // Forwards or backwards?
@@ -198,12 +251,12 @@ public class TimeCalculator {
      */
     public float invertOffsetIfDateLineCrossed(float offsetMinutes) {
         if (offsetMinutes < -12*60) {
-            Log.i("TimeCalc", "Inverting timezone positively");
+            Log.d("TimeCalc", "Inverting timezone positively");
             return offsetMinutes + 1440;
         }
 
         if (offsetMinutes > 13*60) {
-            Log.i("TimeCalc", "Inverting timezone negatively");
+            Log.d("TimeCalc", "Inverting timezone negatively");
             return offsetMinutes - 1440;
         }
 
