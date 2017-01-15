@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
 
     TextView mOriginText;
     TextView mDestText;
+    TextView mInfoStatus;
     TextView mInfoFlightLength;
     TextView mInfoFlightProgress;
     TextView mInfoShiftDirection;
@@ -75,15 +76,17 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                Snackbar.make(view, "Time Zone recalculated", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Calculations updated", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 mClockFragment.updateClock();
+                setTextViews();
 
             }
         });
 
         this.mOriginText = (TextView) findViewById(R.id.origin_text);
         this.mDestText = (TextView) findViewById(R.id.dest_text);
+        this.mInfoStatus = (TextView) findViewById(R.id.info_status);
         this.mInfoFlightLength = (TextView) findViewById(R.id.info_flight_length);
         this.mInfoFlightProgress = (TextView) findViewById(R.id.info_flight_progress);
         this.mInfoShiftAmount = (TextView) findViewById(R.id.info_shift_amount);
@@ -173,6 +176,7 @@ public class MainActivity extends AppCompatActivity
         } catch (AirClockException e) { }
         String shiftDirection = (tc.shiftDirection());
         String crossesDateLine = (tc.crossesDateLine()) ? "yes" : "no";
+        String flightStatus = tc.getFlightStatus();
 
         this.mOriginText.setText(
                 dateTimeFormatter.print(mOriginDate).replace(" ", "\n") +
@@ -181,6 +185,7 @@ public class MainActivity extends AppCompatActivity
                 dateTimeFormatter.print(mDestDate).replace(" ", "\n") +
                         " " + mDestDate.getZone().toString());
 
+        this.mInfoStatus.setText(flightStatus);
         this.mInfoFlightLength.setText(String.valueOf(flightLength) + " hours");
         this.mInfoFlightProgress.setText(String.format("%,.0f%%", flightProgress * 100));
         this.mInfoShiftAmount.setText(String.valueOf(shiftAmount + " hours"));

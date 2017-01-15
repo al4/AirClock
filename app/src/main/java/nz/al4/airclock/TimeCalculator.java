@@ -131,18 +131,19 @@ public class TimeCalculator {
 
         Integer relativeShift;
 
-        Log.e("Simple diff", String.valueOf(simpleDiff));
+        Log.d("Simple diff", String.valueOf(simpleDiff));
         if (simpleDiff <= 12*60 && simpleDiff >= -12*60) {
             // Use simple difference
             relativeShift = simpleDiff;
-            Log.d("getTotalTimeShift", "Using simple difference for timeshift");
+            Log.d("getTotalTimeShift",
+                    "Using simple difference for timeshift: " + String.valueOf(simpleDiff));
         }
         else {
             // more complicated....
             int timeShift = (int) (24 * 60 - (abs(destOffset) + abs(originOffset)));
 
-            // The offset we shift by is simply mod 24 hours of the sum of differences from UTC
-            timeShift = timeShift % 1440;
+            // The offset we shift by is simply mod 12 hours of the sum of differences from UTC
+            timeShift = timeShift % 720;
             Log.d("getTotalTimeShift", "Time Shift: " + String.valueOf(timeShift));
 
             // Figure out if we're going forwards or backwards
@@ -195,7 +196,13 @@ public class TimeCalculator {
         Float shiftRatio = elapsed / flightLength;
         Log.d("getFlightProgress", shiftRatio.toString());
 
-        return shiftRatio;
+        if (shiftRatio > 1) {
+            return new Float(1.0);
+        } else if (shiftRatio < 0) {
+            return new Float(0.0);
+        } else {
+            return shiftRatio;
+        }
     }
 
     /**
@@ -252,13 +259,17 @@ public class TimeCalculator {
         }
 
         if (DateTime.now().isAfter(mDestTime)) {
-            Log.w("offsetString", "Outside of flight time");
-            return "You have arrived";
+            // Return destination time zone
+            long offset = mDestTime.getZone().getOffset(mDestTime.toInstant());
+            long minutes = msToMinutes((int) offset);
+            return getTzString((int) minutes);
         }
 
         if (DateTime.now().isBefore(mOriginTime)){
-            Log.w("offsetString", "Outside of flight time");
-            return "You have not taken off yet";
+            // Return origin time zone
+            long offset = mOriginTime.getZone().getOffset(mOriginTime.toInstant());
+            long minutes = msToMinutes((int) offset);
+            return getTzString((int) minutes);
         }
 
         float offsetMins = getEffectiveOffsetMinutes();
@@ -266,14 +277,22 @@ public class TimeCalculator {
         // Invert if over the date line
         offsetMins = invertOffsetIfDateLineCrossed(offsetMins);
 
+        return getTzString((int) offsetMins);
+    }
+
+    /**
+     * Convert offset in minutes to a TimeZone string
+     *
+     * @param offsetMins
+     * @return
+     */
+    public String getTzString(int offsetMins) {
         // Convert minutes to hours+minutes
-        Integer[] offsetHoursMinutes = minutesToHoursMinutes((int) offsetMins);
+        Integer[] offsetHoursMinutes = minutesToHoursMinutes(offsetMins);
         Integer offsetHours = offsetHoursMinutes[0];
         Integer offsetMinutes = offsetHoursMinutes[1];
-        Log.d("offsetCalc", "effective offset hours: " + offsetHours + " mins: " + offsetMinutes);
+        Log.d("getTzString", "hours: " + offsetHours + " mins: " + offsetMinutes);
 
-        // Output time zone string
-        // Forwards or backwards?
         String hours = String.format("%02d", (int) abs(offsetHours));
         String minutes = String.format("%02d", (int) abs(offsetMinutes));
 
@@ -285,6 +304,7 @@ public class TimeCalculator {
             return("GMT-" + hours + minutes);
         }
     }
+
 
     /**
      * Whether it is less of a time-shift to cross the international date line, or go the other way
@@ -328,6 +348,39 @@ public class TimeCalculator {
         } else {
             return "reverse";
         }
+    }
+
+    /**
+     * Where are we in the flight?
+     *
+     * @return
+     */
+    public final String getFlightStatus() {
+        if (mDestTime.isBefore(mOriginTime)) {
+            return "Destination time is before Origin time!";
+        }
+
+        else if (DateTime.now().isBefore(mOriginTime)){
+            return "at origin";
+        }
+
+        else if (DateTime.now().isAfter(mDestTime)) {
+            return "at destination";
+        }
+
+        else if (DateTime.now().isAfter(mOriginTime)) {
+            return "in flight";
+        }
+
+        else if (DateTime.now() == mOriginTime) {
+            return "take off!";
+        }
+
+        else if (DateTime.now() == mDestTime) {
+            return "Arrived";
+        }
+
+        return "Error";
     }
 
 

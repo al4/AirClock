@@ -125,6 +125,29 @@
             android:gravity="center_vertical"
             android:stretchColumns="*"
             android:orientation="vertical">
+            <TableRow>
+                <TextView
+                    android:text="Calculation Information"
+                    android:layout_span="2"
+                    android:gravity="center"
+                    android:textSize="@dimen/info_text_size"
+                    android:paddingRight="@dimen/text_padding"
+                    />
+
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="Status"
+                    android:textSize="@dimen/info_text_size"
+                    android:paddingRight="@dimen/text_padding"
+                    />
+                <TextView
+                    android:id="@+id/info_status"
+                    android:gravity="right"
+                    android:text="unset"
+                    android:textSize="@dimen/info_text_size"
+                    />
+            </TableRow>
 
             <TableRow>
                 <TextView
@@ -156,7 +179,7 @@
 
             <TableRow>
                 <TextView
-                    android:text="Time shift"
+                    android:text="Time change"
                     android:textSize="@dimen/info_text_size"
                     android:paddingRight="@dimen/text_padding"
                     />

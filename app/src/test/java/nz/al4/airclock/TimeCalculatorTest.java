@@ -38,10 +38,10 @@ public class TimeCalculatorTest {
     @Before
     public void setUp() throws Exception {
         PowerMockito.mockStatic(Log.class);
-        // Honolulu to Brisbane, 4h offset
+        // Honolulu to Brisbane, 4h offset, 10h flight
         TcHonoluluBrisbane = new TimeCalculator(
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
-                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10))
+                new DateTime(2017, 1, 1, 14, 0, DateTimeZone.forOffsetHours(-10)),
+                new DateTime(2017, 1, 2, 20, 0, DateTimeZone.forOffsetHours(10))
         );
 
         // London to Auckland, 12h offset, 24h flight
@@ -59,7 +59,7 @@ public class TimeCalculatorTest {
         // Perth to London 20h flight
         TcPerthLondon = new TimeCalculator(
                 new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(8)),
-                new DateTime(2017, 1, 1, 20, 0, DateTimeZone.forOffsetHours(0))
+                new DateTime(2017, 1, 1, 12, 0, DateTimeZone.forOffsetHours(0))
         );
 
         // Amsterdam to New York 8h flight
@@ -87,7 +87,7 @@ public class TimeCalculatorTest {
     }
 
     @Test
-    public void getFlightLength_returns_24_for_24h_flight()
+    public void getFlightLength_London_to_Auckland()
             throws Exception, AirClockSpaceTimeException {
         assertThat("flight length should be 24 hours",
             this.TcLondonAuckland.getFlightLength(),
@@ -95,6 +95,22 @@ public class TimeCalculatorTest {
         );
     }
 
+    @Test
+    public void getFlightLength_Perth_to_London()
+            throws Exception, AirClockSpaceTimeException {
+        assertThat("flight length should be 20 hours",
+                this.TcPerthLondon.getFlightLength(),
+                equalTo(new Float(20 * 60 * 60 * 1000))
+        );
+    }
+
+    @Test
+    public void getFlightLength_Honlulu_to_Brisbane() throws Exception {
+        assertThat("flight length should be 10 hours",
+                this.TcHonoluluBrisbane.getFlightLength(),
+                equalTo(new Float(10 * 60 * 60 * 1000))
+        );
+    }
     @Test
     public void getFlightLength_returns_zero_when_land_before_depart()
             throws Exception, AirClockSpaceTimeException {
@@ -153,7 +169,7 @@ public class TimeCalculatorTest {
     @Test
     public void getEffectiveOffset_Honolulu_to_Brisbane_at_origin() throws Exception {
         setCurrentMillisFixed(
-                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
+                new DateTime(2017, 1, 1, 14, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
         );
         assertThat("time zone is same as origin at take off time",
             TcHonoluluBrisbane.getEffectiveOffsetText(),
@@ -214,6 +230,40 @@ public class TimeCalculatorTest {
         assertThat("time zone is same as origin at take off time",
                 tc.getEffectiveOffsetText(),
                 equalTo("GMT-1000")
+        );
+    }
+
+
+    @Test
+    public void getFlightProgress_in_flight() throws Exception {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.UTC).getMillis()
+        );
+        assertThat("status is in flight",
+                TcLondonAuckland.getFlightStatus(),
+                equalTo(new String("in flight"))
+        );
+    }
+
+    @Test
+    public void getFlightProgress_at_origin() throws Exception {
+        setCurrentMillisFixed(
+                new DateTime(2016, 12, 31, 0, 0, DateTimeZone.UTC).getMillis()
+        );
+        assertThat("status is at origin",
+                TcLondonAuckland.getFlightStatus(),
+                equalTo(new String("at origin"))
+        );
+    }
+
+    @Test
+    public void getFlightProgress_at_destination() throws Exception {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 3, 0, 0, DateTimeZone.UTC).getMillis()
+        );
+        assertThat("status is at destination",
+                TcLondonAuckland.getFlightStatus(),
+                equalTo(new String("at destination"))
         );
     }
 
