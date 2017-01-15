@@ -126,7 +126,7 @@ public class TimeCalculatorTest {
 //    }
 
     @Test
-    public void getTotalTimeShift_12h_diff() throws Exception, AirClockException {
+    public void getTotalTimeShift_London_to_Auckland() throws Exception, AirClockException {
         assertThat("time shift should be 720 minutes",
                 TcLondonAuckland.getTotalTimeShift(),
                 equalTo(new Float(720))
@@ -134,7 +134,7 @@ public class TimeCalculatorTest {
     }
 
     @Test
-    public void getTotalTimeShift_with_4h_reverse_diff() throws Exception, AirClockException {
+    public void getTotalTimeShift_Honolulu_to_Brisbane() throws Exception, AirClockException {
         assertThat("time shift should be -240 minutes",
                 TcHonoluluBrisbane.getTotalTimeShift(),
                 equalTo(new Float(-240))
@@ -142,22 +142,44 @@ public class TimeCalculatorTest {
     }
 
     @Test
-    public void getTotalTimeShift_with_10h_diff() throws Exception, AirClockException {
+    public void getTotalTimeShift_Honolulu_to_Islamabad() throws Exception, AirClockException {
         assertThat("time shift should be -600 minutes",
                 TcHonoluluIslamabad.getTotalTimeShift(),
                 equalTo(new Float(-600))
         );
     }
 
+
     @Test
-    public void getEffectiveOffset_with_4h_at_start() throws Exception, AirClockException {
-        System.out.println(String.valueOf(TcHonoluluBrisbane.getEffectiveOffsetText()));
+    public void getEffectiveOffset_Honolulu_to_Brisbane_at_origin() throws Exception {
         setCurrentMillisFixed(
                 new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
         );
         assertThat("time zone is same as origin at take off time",
             TcHonoluluBrisbane.getEffectiveOffsetText(),
             equalTo("GMT-1000")
+        );
+    }
+
+    @Test
+    public void getEffectiveOffset_SanFran_to_Washington_at_origin() throws Exception {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-8)).getMillis()
+        );
+        assertThat("time zone is same as origin at take off time",
+                TcSanFranWashington.getEffectiveOffsetText(),
+                equalTo("GMT-0800")
+        );
+    }
+
+    @Test
+    public void getEffectiveOffset_London_to_Auckland_half_way() throws Exception {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 1, 12, 0, DateTimeZone.UTC).getMillis()
+        );
+        assertThat("time zone is GMT+0600 half way from London UTC to Auckland +12",
+                TcLondonAuckland.getEffectiveOffsetText(),
+                equalTo("GMT+0600")
         );
     }
 
