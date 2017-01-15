@@ -27,30 +27,51 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 @PrepareForTest({Log.class})
 public class TimeCalculatorTest {
 
-    public TimeCalculator TimeCalculator4h;
-    public TimeCalculator TimeCalculator10h;
-    public TimeCalculator TimeCalculator12h;
-
+    private TimeCalculator TcHonoluluBrisbane;
+    private TimeCalculator TcHonoluluIslamabad;
+    private TimeCalculator TcLondonAuckland;
+    private TimeCalculator TcPerthLondon;
+    private TimeCalculator TcAmsterdamNewYork;
+    private TimeCalculator TcImpossible;
 
     @Before
     public void setUp() throws Exception {
         PowerMockito.mockStatic(Log.class);
-        // 4h offset
-        TimeCalculator4h = new TimeCalculator(
+        // Honolulu to Brisbane, 4h offset
+        TcHonoluluBrisbane = new TimeCalculator(
                 new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
                 new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(10))
         );
 
-        // 12h offset, 24h flight
-        TimeCalculator12h = new TimeCalculator(
+        // London to Auckland, 12h offset, 24h flight
+        TcLondonAuckland = new TimeCalculator(
                 new LocalDateTime(2017, 1, 1, 0, 0).toDateTime(DateTimeZone.UTC),
                 new LocalDateTime(2017, 1, 2, 12, 0).toDateTime(DateTimeZone.forOffsetHours(12))
         );
 
-        // 10h offset
-        TimeCalculator10h = new TimeCalculator(
+        // Honolulu to Islamabad 10h offset
+        TcHonoluluIslamabad = new TimeCalculator(
                 new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)),
                 new DateTime(2017, 1, 2, 0, 0, DateTimeZone.forOffsetHours(4))
+        );
+
+        // Perth to London 20h flight
+        TcPerthLondon = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(8)),
+                new DateTime(2017, 1, 1, 20, 0, DateTimeZone.forOffsetHours(0))
+        );
+
+        // Amsterdam to New York 8h flight
+        TcAmsterdamNewYork = new TimeCalculator(
+                new DateTime(2017, 1, 1, 1, 0, DateTimeZone.forOffsetHours(1)),
+                new DateTime(2017, 1, 1, 3, 0, DateTimeZone.forOffsetHours(-5))
+
+        );
+
+        // Impossible flight, lands before takeoff
+        TcImpossible = new TimeCalculator(
+                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.UTC),
+                new DateTime(2016, 1, 1, 0, 0, DateTimeZone.UTC)
         );
     }
 
@@ -62,7 +83,7 @@ public class TimeCalculatorTest {
     public void getFlightLength_returns_24_for_24h_flight()
             throws Exception, AirClockSpaceTimeException {
         assertThat("flight length should be 24 hours",
-            this.TimeCalculator12h.getFlightLength(),
+            this.TcLondonAuckland.getFlightLength(),
             equalTo(new Float(24 * 60 * 60 * 1000))
         );
     }
@@ -70,14 +91,19 @@ public class TimeCalculatorTest {
     @Test
     public void getFlightLength_returns_zero_when_land_before_depart()
             throws Exception, AirClockSpaceTimeException {
-        TimeCalculator lTimeCalculator = new TimeCalculator(
-                new DateTime(2017, 1, 2, 0, 0, DateTimeZone.UTC),
-                new DateTime(2016, 1, 1, 0, 0, DateTimeZone.UTC)
-        );
         assertThat("flight length should be zero for an impossible flight",
-                lTimeCalculator.getFlightLength(),
+                TcImpossible.getFlightLength(),
                 equalTo(new Float(0))
         );
+    }
+
+    @Test
+    public void getFlightLength_returns_8h_Amsterdam_NY() throws Exception {
+        assertThat("flight length should be 8h",
+                TcAmsterdamNewYork.getFlightLength(),
+                equalTo(new Float(8 * 60 * 60 * 1000))
+        );
+
     }
 
 //    @Test
@@ -88,7 +114,7 @@ public class TimeCalculatorTest {
     @Test
     public void getTotalTimeShift_12h_diff() throws Exception, AirClockException {
         assertThat("time shift should be 720 minutes",
-                TimeCalculator12h.getTotalTimeShift(),
+                TcLondonAuckland.getTotalTimeShift(),
                 equalTo(new Float(720))
         );
     }
@@ -96,7 +122,7 @@ public class TimeCalculatorTest {
     @Test
     public void getTotalTimeShift_with_4h_reverse_diff() throws Exception, AirClockException {
         assertThat("time shift should be -240 minutes",
-                TimeCalculator4h.getTotalTimeShift(),
+                TcHonoluluBrisbane.getTotalTimeShift(),
                 equalTo(new Float(-240))
         );
     }
@@ -104,19 +130,19 @@ public class TimeCalculatorTest {
     @Test
     public void getTotalTimeShift_with_10h_diff() throws Exception, AirClockException {
         assertThat("time shift should be -600 minutes",
-                TimeCalculator10h.getTotalTimeShift(),
+                TcHonoluluIslamabad.getTotalTimeShift(),
                 equalTo(new Float(-600))
         );
     }
 
     @Test
     public void getEffectiveOffset_with_4h_at_start() throws Exception, AirClockException {
-        System.out.println(String.valueOf(TimeCalculator4h.getEffectiveOffsetText()));
+        System.out.println(String.valueOf(TcHonoluluBrisbane.getEffectiveOffsetText()));
         setCurrentMillisFixed(
                 new DateTime(2017, 1, 1, 0, 0, DateTimeZone.forOffsetHours(-10)).getMillis()
         );
         assertThat("time zone is same as origin at take off time",
-            TimeCalculator4h.getEffectiveOffsetText(),
+            TcHonoluluBrisbane.getEffectiveOffsetText(),
             equalTo("GMT-1000")
         );
     }
