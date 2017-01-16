@@ -224,4 +224,9 @@ public class MainActivity extends AppCompatActivity
     public void onClockTouch() {
 
     }
+
+    public void startPreferenceActivity(View view) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 }
