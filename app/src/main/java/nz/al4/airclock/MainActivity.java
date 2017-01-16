@@ -170,9 +170,10 @@ public class MainActivity extends AppCompatActivity
 
         float flightLength = tc.msToHours((int) tc.getFlightLength());
         float flightProgress = tc.getFlightProgress();
-        float shiftAmount = 0;
+        float shiftMins = 0.0f;
         try {
-            shiftAmount = tc.getTotalTimeShift() / 60;
+            float t = tc.getTotalTimeShift();
+            shiftMins = (t <= 0.0f) ? 0.0f - t : t;
         } catch (AirClockException e) { }
         String shiftDirection = (tc.shiftDirection());
         String crossesDateLine = (tc.crossesDateLine()) ? "yes" : "no";
@@ -186,9 +187,9 @@ public class MainActivity extends AppCompatActivity
                         " " + mDestDate.getZone().toString());
 
         this.mInfoStatus.setText(flightStatus);
-        this.mInfoFlightLength.setText(String.valueOf(flightLength) + " hours");
+        this.mInfoFlightLength.setText(String.format("%1.1f hours", flightLength));
         this.mInfoFlightProgress.setText(String.format("%,.0f%%", flightProgress * 100));
-        this.mInfoShiftAmount.setText(String.valueOf(shiftAmount + " hours"));
+        this.mInfoShiftAmount.setText(String.format("%,.0f hours", shiftMins / 60));
         this.mInfoShiftDirection.setText(String.valueOf(shiftDirection));
         this.mInfoCrossesDateLine.setText(String.valueOf(crossesDateLine));
     }

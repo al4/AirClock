@@ -36,7 +36,7 @@
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/scroll_view"
         android:layout_below="@id/card_view_clock"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -136,102 +136,116 @@
                     android:paddingLeft="@dimen/card_horizontal_margin"
                     android:paddingRight="@dimen/card_horizontal_margin"
                     android:paddingTop="@dimen/card_vertical_margin"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:stretchColumns="*"
                     android:orientation="vertical">
-                    <TableRow>
-                        <TextView
-                            android:text="Calculation Information"
-                            android:layout_span="2"
-                            android:gravity="center"
-                            android:textSize="@dimen/info_text_size"
-                            android:paddingRight="@dimen/text_padding"
-                            />
-
-                    </TableRow>
-                    <TableRow>
+                    <TableRow
+                        android:weightSum="2"
+                        >
                         <TextView
                             android:text="Status"
                             android:textSize="@dimen/info_text_size"
                             android:paddingRight="@dimen/text_padding"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/info_status"
                             android:gravity="right"
-                            android:text="unset"
+                            android:layout_weight="1"
+                            android:text="this is a test, a long one"
                             android:textSize="@dimen/info_text_size"
                             />
                     </TableRow>
 
-                    <TableRow>
+                    <TableRow
+                        android:weightSum="2"
+                        >
                         <TextView
-                            android:text="Flight Length"
+                            android:text="Flight length"
                             android:textSize="@dimen/info_text_size"
                             android:paddingRight="@dimen/text_padding"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/info_flight_length"
                             android:gravity="right"
                             android:text="unset"
                             android:textSize="@dimen/info_text_size"
+                            android:layout_weight="1"
                             />
                     </TableRow>
 
-                    <TableRow>
+                    <TableRow
+                        android:weightSum="2"
+                        >
                         <TextView
-                            android:text="Flight Progress"
+                            android:text="Flight progress"
                             android:textSize="@dimen/info_text_size"
                             android:paddingRight="@dimen/text_padding"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/info_flight_progress"
                             android:gravity="right"
                             android:text="unset"
                             android:textSize="@dimen/info_text_size"
+                            android:layout_weight="1"
                             />
                     </TableRow>
 
-                    <TableRow>
+                    <TableRow
+                        android:weightSum="2"
+                        >
                         <TextView
-                            android:text="Time change"
+                            android:text="Total time shift"
                             android:textSize="@dimen/info_text_size"
                             android:paddingRight="@dimen/text_padding"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/info_shift_amount"
                             android:gravity="right"
                             android:text="unset"
                             android:textSize="@dimen/info_text_size"
+                            android:layout_weight="1"
                             />
                     </TableRow>
 
-                    <TableRow>
+                    <TableRow
+                        android:weightSum="2"
+                        >
                         <TextView
                             android:text="Time shift direction"
                             android:textSize="@dimen/info_text_size"
                             android:paddingRight="@dimen/text_padding"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/info_shift_direction"
                             android:gravity="right"
                             android:text="unset"
                             android:textSize="@dimen/info_text_size"
+                            android:layout_weight="1"
                             />
                     </TableRow>
 
-                    <TableRow>
+                    <TableRow
+                        android:weightSum="2"
+                        >
                         <TextView
-                            android:text="Crossing international date line"
+                            android:text="Crossing date line"
                             android:textSize="@dimen/info_text_size"
                             android:paddingRight="@dimen/card_horizontal_margin"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/info_crosses_dateline"
                             android:gravity="right"
                             android:text="unset"
                             android:textSize="@dimen/info_text_size"
+                            android:layout_weight="1"
                             />
                     </TableRow>
                 </TableLayout>

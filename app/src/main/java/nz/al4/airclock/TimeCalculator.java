@@ -200,6 +200,8 @@ public class TimeCalculator {
             return new Float(1.0);
         } else if (shiftRatio < 0) {
             return new Float(0.0);
+        } else if (Double.isNaN(shiftRatio)) {
+            return new Float(0.0);
         } else {
             return shiftRatio;
         }
@@ -253,31 +255,35 @@ public class TimeCalculator {
      */
     public String getEffectiveOffsetText() {
         if (mDestTime.isBefore(mOriginTime)) {
+            // Return origin time zone
+            long offset = mOriginTime.getZone().getOffset(mOriginTime.toInstant());
+            long minutes = msToMinutes((int) offset);
             Log.e("offsetString", "Cannot get offset, destination time is before origin time");
-//            throw new AirClockSpaceTimeException("You can not land before you take off");
-            return "Destination is before Origin";
+            return getTzString((int) minutes);
         }
 
-        if (DateTime.now().isAfter(mDestTime)) {
+        else if (DateTime.now().isAfter(mDestTime)) {
             // Return destination time zone
             long offset = mDestTime.getZone().getOffset(mDestTime.toInstant());
             long minutes = msToMinutes((int) offset);
             return getTzString((int) minutes);
         }
 
-        if (DateTime.now().isBefore(mOriginTime)){
+        else if (DateTime.now().isBefore(mOriginTime)){
             // Return origin time zone
             long offset = mOriginTime.getZone().getOffset(mOriginTime.toInstant());
             long minutes = msToMinutes((int) offset);
             return getTzString((int) minutes);
         }
 
-        float offsetMins = getEffectiveOffsetMinutes();
+        else {
+            // Return calculated offset
 
-        // Invert if over the date line
-        offsetMins = invertOffsetIfDateLineCrossed(offsetMins);
+            float offsetMins = getEffectiveOffsetMinutes();
+            offsetMins = invertOffsetIfDateLineCrossed(offsetMins);  // Invert if over the date line
 
-        return getTzString((int) offsetMins);
+            return getTzString((int) offsetMins);
+        }
     }
 
     /**
@@ -357,7 +363,7 @@ public class TimeCalculator {
      */
     public final String getFlightStatus() {
         if (mDestTime.isBefore(mOriginTime)) {
-            return "Destination time is before Origin time!";
+            return "Error, destination before origin";
         }
 
         else if (DateTime.now().isBefore(mOriginTime)){
@@ -377,7 +383,7 @@ public class TimeCalculator {
         }
 
         else if (DateTime.now() == mDestTime) {
-            return "Arrived";
+            return "arrived";
         }
 
         return "Error";
