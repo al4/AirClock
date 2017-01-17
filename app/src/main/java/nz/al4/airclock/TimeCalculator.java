@@ -32,17 +32,26 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class TimeCalculator {
+    DateTime mOriginTime;
+    DateTime mDestTime;
+
+    // Zone offsets in minutes
+    Integer mOriginOffset;
+    Integer mDestOffset;
+
+    String mDirection; // forward or reverse
+    String mStatus; // atOrigin, atDestination or inFlight
+
+    // Upper and lower bounds for time zones
+    int UPPER_TZ_LIMIT = 13;
+    int LOWER_TZ_LIMIT = -12;
 
     public TimeCalculator(DateTime originTime, DateTime destTime) {
         mOriginTime = originTime;
         mDestTime = destTime;
+        mOriginOffset = getTimeZoneOffset(mOriginTime.getZone());
+        mDestOffset = getTimeZoneOffset(mDestTime.getZone());
     }
-
-    DateTime mOriginTime;
-    DateTime mDestTime;
-    String mDirection; // forward or reverse
-    Boolean mCrossesDateLine;
-    String mStatus; // atOrigin, atDestination or inFlight
 
     /**
      * Setter for mStatus
@@ -120,66 +129,36 @@ public class TimeCalculator {
      *
      * @return
      */
-    public float getTotalTimeShift() throws AirClockException {
+    public int getTotalTimeShift() {
         // Amount we're shifting time by in minutes
-        int originOffset = getTimeZoneOffset(mOriginTime.getZone());
-        Log.d("getTotalTimeShift", "origin offset: " + String.valueOf(originOffset));
-        int destOffset = getTimeZoneOffset(mDestTime.getZone());
-        Log.d("getTotalTimeShift", "dest offset: " + String.valueOf(destOffset));
+        int timeShift;
 
-        int simpleDiff = destOffset - originOffset;
-
-        Integer relativeShift;
+        int simpleDiff = mDestOffset - mOriginOffset;
 
         Log.d("Simple diff", String.valueOf(simpleDiff));
         if (simpleDiff <= 12*60 && simpleDiff >= -12*60) {
-            // Use simple difference
-            relativeShift = simpleDiff;
+            // Use simple difference. If it's less than 12 hours going the other way is not going
+            // to be faster.
+            timeShift = simpleDiff;
             Log.d("getTotalTimeShift",
                     "Using simple difference for timeshift: " + String.valueOf(simpleDiff));
         }
         else {
-            // more complicated....
-            int timeShift = (int) (24 * 60 - (abs(destOffset) + abs(originOffset)));
-
-            // The offset we shift by is simply mod 12 hours of the sum of differences from UTC
-            timeShift = timeShift % 720;
-            Log.d("getTotalTimeShift", "Time Shift: " + String.valueOf(timeShift));
-
-            // Figure out if we're going forwards or backwards
-            if (originOffset + timeShift == destOffset) {
-                // forward!
-                Log.d("getTotalTimeShift", "direction: forward!");
-                relativeShift = timeShift;
-                mCrossesDateLine = false;
-            } else if (originOffset - timeShift == destOffset) {
-                // reverse!
-                Log.d("getTotalTimeShift", "direction: reverse!");
-                relativeShift = timeShift * -1;
-                mCrossesDateLine = false;
-            } else if (originOffset < 0) {
-                // reverse across international date line
-                Log.d("getTotalTimeShift", "direction: reverse across date line");
-                relativeShift = timeShift * -1;
-                mCrossesDateLine = true;
-            } else if (originOffset >= 0) {
-                // forward across international date line
-                Log.d("getTotalTimeShift", "direction: forward across date line");
-                relativeShift = timeShift;
-                mCrossesDateLine = true;
-            } else {
-                throw new AirClockException("Unhandled case in getTotalTimeShift");
+            // Opposite way must be faster, subtract from 24h
+            if (simpleDiff > 0) {
+                timeShift = -24 * 60 + simpleDiff;  // should be negative
+            }
+            else if (simpleDiff < 0) {
+                timeShift = 24 * 60 + simpleDiff;  // should be positive
+            }
+            else {
+                // must be zero...
+                timeShift = 0;
             }
         }
 
-        if (relativeShift >= 0) {
-            this.setmDirection("forward");
-        } else {
-            this.setmDirection("reverse");
-        }
-
-        Log.d("getTotalTimeShift", "final shift: " + String.valueOf(relativeShift));
-        return relativeShift;
+        Log.d("getTotalTimeShift", "final shift: " + String.valueOf(timeShift));
+        return timeShift;
     }
 
     /**
@@ -225,23 +204,14 @@ public class TimeCalculator {
         Log.d("offsetCalc", "shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
-        float totalTimeShift = 0;
-        try {
-            totalTimeShift = getTotalTimeShift();
-        } catch (AirClockException e) {
-            Log.w("getOffset", "Could not get time shift");
-        }
+        float totalTimeShift = getTotalTimeShift();
 
         // Time shift at current time
         float shiftMinutes = totalTimeShift * shiftRatio;
         Log.d("offsetCalc", "shift minutes: " + shiftMinutes);
 
-        // Get origin UTC offset minutes
-        int originOffsetMinutes = getTimeZoneOffset(mOriginTime.getZone());
-        Log.d("offsetCalc", "origin offset minutes: " + originOffsetMinutes);
-
         // Add our shift to origin UTC offset
-        float offsetMins = shiftMinutes + originOffsetMinutes;
+        float offsetMins = shiftMinutes + mOriginOffset;
         Log.i("offsetCalc", "effective offset minutes: " + offsetMins);
 
         return offsetMins;
@@ -313,19 +283,19 @@ public class TimeCalculator {
 
 
     /**
-     * Whether it is less of a time-shift to cross the international date line, or go the other way
+     * Whether we have crossed the date line at the present point in time
      *
      * @return
      */
-    public boolean crossesDateLine() {
+    public boolean crossedDateLine() {
         float offsetMinutes = getEffectiveOffsetMinutes();
 
-        if (offsetMinutes < -12*60) {
+        if (offsetMinutes < LOWER_TZ_LIMIT * 60) {
             Log.d("TimeCalc", "Inverting timezone positively");
             return true;
         }
 
-        else if (offsetMinutes > 13*60) {
+        else if (offsetMinutes > UPPER_TZ_LIMIT * 60) {
             Log.d("TimeCalc", "Inverting timezone negatively");
             return true;
         }
@@ -337,23 +307,47 @@ public class TimeCalculator {
     }
 
     /**
+     * Whether our time shift will have us crossing the international date line
+     *
+     * @return
+     */
+    public boolean crossesDateLine() {
+        int ts = getTotalTimeShift();
+
+        if (mDirection == "forward" && mOriginOffset + ts > UPPER_TZ_LIMIT * 60 ) {
+            return true;
+        }
+        else if (mDirection == "reverse" && mOriginOffset + ts < LOWER_TZ_LIMIT) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    /**
      * Figure out whether we are going forwards or backwards
      *
      * @return
      */
     public final String shiftDirection() {
-        float relativeShift;
-        try {
-            relativeShift = getTotalTimeShift();
-        } catch (AirClockException e) {
-            return null;
-        }
+        float relativeShift = getTotalTimeShift();
 
         if (relativeShift >= 0) {
-            return "forward";
+            try {
+                setmDirection("forward");
+            } catch (AirClockException e) {
+                e.printStackTrace();
+            }
         } else {
-            return "reverse";
+            try {
+                setmDirection("reverse");
+            } catch (AirClockException e) {
+                e.printStackTrace();
+            }
         }
+        return mDirection;
     }
 
     /**

@@ -171,10 +171,10 @@ public class MainActivity extends AppCompatActivity
         float flightLength = tc.msToHours((int) tc.getFlightLength());
         float flightProgress = tc.getFlightProgress();
         float shiftMins = 0.0f;
-        try {
-            float t = tc.getTotalTimeShift();
-            shiftMins = (t <= 0.0f) ? 0.0f - t : t;
-        } catch (AirClockException e) { }
+
+        float t = tc.getTotalTimeShift();
+        shiftMins = (t <= 0.0f) ? 0.0f - t : t;
+
         String shiftDirection = (tc.shiftDirection());
         String crossesDateLine = (tc.crossesDateLine()) ? "yes" : "no";
         String flightStatus = tc.getFlightStatus();

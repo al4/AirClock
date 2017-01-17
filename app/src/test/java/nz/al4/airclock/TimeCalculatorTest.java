@@ -34,6 +34,7 @@ public class TimeCalculatorTest {
     private TimeCalculator TcAmsterdamNewYork;
     private TimeCalculator TcImpossible;
     private TimeCalculator TcSanFranWashington;
+    private TimeCalculator TcLondonAucklandReverse;
 
     @Before
     public void setUp() throws Exception {
@@ -48,6 +49,12 @@ public class TimeCalculatorTest {
         TcLondonAuckland = new TimeCalculator(
                 new LocalDateTime(2017, 1, 1, 0, 0).toDateTime(DateTimeZone.UTC),
                 new LocalDateTime(2017, 1, 2, 12, 0).toDateTime(DateTimeZone.forOffsetHours(12))
+        );
+
+        // London to Auckland, 12h offset, 24h flight, reverse over date line
+        TcLondonAucklandReverse = new TimeCalculator(
+                new LocalDateTime(2017, 1, 1, 0, 0).toDateTime(DateTimeZone.UTC),
+                new LocalDateTime(2017, 1, 2, 13, 0).toDateTime(DateTimeZone.forOffsetHours(13))
         );
 
         // Honolulu to Islamabad 10h offset
@@ -145,7 +152,7 @@ public class TimeCalculatorTest {
     public void getTotalTimeShift_London_to_Auckland() throws Exception, AirClockException {
         assertThat("time shift should be 720 minutes",
                 TcLondonAuckland.getTotalTimeShift(),
-                equalTo(new Float(720))
+                equalTo(new Integer(720))
         );
     }
 
@@ -153,7 +160,7 @@ public class TimeCalculatorTest {
     public void getTotalTimeShift_Honolulu_to_Brisbane() throws Exception, AirClockException {
         assertThat("time shift should be -240 minutes",
                 TcHonoluluBrisbane.getTotalTimeShift(),
-                equalTo(new Float(-240))
+                equalTo(new Integer(-240))
         );
     }
 
@@ -161,7 +168,7 @@ public class TimeCalculatorTest {
     public void getTotalTimeShift_Honolulu_to_Islamabad() throws Exception, AirClockException {
         assertThat("time shift should be -600 minutes",
                 TcHonoluluIslamabad.getTotalTimeShift(),
-                equalTo(new Float(-600))
+                equalTo(new Integer(-600))
         );
     }
 
@@ -196,6 +203,17 @@ public class TimeCalculatorTest {
         assertThat("time zone is GMT+0600 half way from London UTC to Auckland +12",
                 TcLondonAuckland.getEffectiveOffsetText(),
                 equalTo("GMT+0600")
+        );
+    }
+
+    @Test
+    public void getEffectiveOffset_London_to_Auckland_half_way_reverse() throws Exception {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 1, 12, 0, DateTimeZone.UTC).getMillis()
+        );
+        assertThat("time zone is GMT-0530 half way from London UTC to Auckland +13",
+                TcLondonAucklandReverse.getEffectiveOffsetText(),
+                equalTo("GMT-0530")
         );
     }
 
