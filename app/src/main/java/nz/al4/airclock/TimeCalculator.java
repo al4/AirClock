@@ -228,7 +228,6 @@ public class TimeCalculator {
             // Return origin time zone
             long offset = mOriginTime.getZone().getOffset(mOriginTime.toInstant());
             long minutes = msToMinutes((int) offset);
-            Log.e("offsetString", "Cannot get offset, destination time is before origin time");
             return getTzString((int) minutes);
         }
 
