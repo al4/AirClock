@@ -396,12 +396,12 @@ public class TimeCalculator {
      * Apologies to anyone who lives on an affected island in the Pacific Ocean :-)
      */
     public float invertOffsetIfDateLineCrossed(float offsetMinutes) {
-        if (offsetMinutes < -12*60) {
+        if (offsetMinutes < LOWER_TZ_LIMIT * 60) {
             Log.d("TimeCalc", "Inverting timezone positively");
             return offsetMinutes + 1440;
         }
 
-        if (offsetMinutes > 13*60) {
+        if (offsetMinutes > UPPER_TZ_LIMIT * 60) {
             Log.d("TimeCalc", "Inverting timezone negatively");
             return offsetMinutes - 1440;
         }
