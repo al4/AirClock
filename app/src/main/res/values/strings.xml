@@ -19,9 +19,9 @@
     <string name="html_about_content">
         <![CDATA[
             <p>© 2016 Alex Forbes</p>
-            <p>AirClock is a simple clock widget, which helps reduce jet lag by
+            <p>AirClock is a simple clock widget, which helps you reduce jet lag by
             slowly shifting time between your origin and destination.<p>
-            <p>For more information, please see <a href="https://blog.al4.co.nz/airclock">https://blog.al4.co.nz/airclock</a>.</p>
+            <p>For more information, please see <a href="https://blog.al4.co.nz/airclock">https://al4.github.io/AirClock</a>.</p>
             <h3>Licence</h3>
             <p>AirCLock is open source, and distributed under the GPL version 3.</p>
         ]]>
