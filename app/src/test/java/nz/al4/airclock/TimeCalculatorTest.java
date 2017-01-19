@@ -15,6 +15,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 
 /**
@@ -285,5 +287,13 @@ public class TimeCalculatorTest {
         );
     }
 
+    @Test
+    public void timeForAlarm_returns_DateTime_after_origin() throws Exception {
+        LocalDateTime alarmTime = new LocalDateTime(2017, 1, 1, 8, 0);   // 8am alarm
+        assertThat("returns DateTime after origin",
+                TcLondonAuckland.timeForAlarm(alarmTime).getMillis(),
+                greaterThan(TcLondonAuckland.mOriginTime.getMillis())
+        );
+    }
 
 }

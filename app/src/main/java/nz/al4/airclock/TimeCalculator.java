@@ -22,6 +22,7 @@ import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -480,5 +481,25 @@ public class TimeCalculator {
         return hours;
     }
 
-//    public float timeForAlarm(float )
+    /**
+     * Calculate when to set an alarm given a LocalDateTime (no time zone information)
+     *
+     * To do this, we need to figure out what time zone will be applied when we hit this time...
+     * far from trivial!
+     *
+     * Idea 1:
+     * iterate forward until we pass the time, then bisect until we reach an approximate time.
+     *
+     * Idea 2:
+     *
+     *
+     * @param localAlarmTime
+     * @return
+     */
+    public DateTime timeForAlarm(LocalDateTime localAlarmTime) {
+        DateTime alarmTime = localAlarmTime.toDateTime(mOriginTime.getZone());
+
+        return alarmTime;
+    }
+
 }
