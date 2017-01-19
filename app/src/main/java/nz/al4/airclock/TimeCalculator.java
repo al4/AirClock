@@ -110,7 +110,7 @@ public class TimeCalculator {
      *
      * @return
      */
-    public float getElapsedAt(DateTime dateTime) {
+    public float getElapsed(DateTime dateTime) {
         long nowMillis = dateTime.getMillis();
         Long elapsed = nowMillis - mOriginTime.getMillis();
         Log.d("timeCalc", "elapsed millis: " + elapsed);
@@ -130,7 +130,7 @@ public class TimeCalculator {
      * @return
      */
     public float getElapsed() {
-        return getElapsedAt(new DateTime().now());
+        return getElapsed(new DateTime().now());
     }
 
 
@@ -176,11 +176,11 @@ public class TimeCalculator {
      *
      * @return
      */
-    public float getFlightProgressAt(DateTime dateTime) {
+    public float getFlightProgress(DateTime dateTime) {
         float flightLength = getFlightLength();
 
         // Time elapsed since departure
-        float elapsed = getElapsedAt(dateTime);
+        float elapsed = getElapsed(dateTime);
 
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
@@ -201,7 +201,7 @@ public class TimeCalculator {
      * Get how far through the flight we are now
      */
     public float getFlightProgress() {
-        return getFlightProgressAt(DateTime.now());
+        return getFlightProgress(DateTime.now());
     }
 
     /**
@@ -211,11 +211,21 @@ public class TimeCalculator {
      * @throws Exception
      */
     public float getEffectiveOffsetMinutes() {
+        return getEffectiveOffsetMinutes(DateTime.now());
+    }
+
+    /**
+     * Get effective offset at a given time
+     *
+     * @param dateTime
+     * @return
+     */
+    public float getEffectiveOffsetMinutes(DateTime dateTime) {
         // Length of flight
         float flightLength = getFlightLength();
 
         // Time elapsed since departure
-        float elapsed = getElapsed();
+        float elapsed = getElapsed(dateTime);
 
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
@@ -491,15 +501,37 @@ public class TimeCalculator {
      * iterate forward until we pass the time, then bisect until we reach an approximate time.
      *
      * Idea 2:
-     *
+     * Use linear algebra to calculate c such that y = x + c
+     * where y is the time zone offset and x is time.
+     * We can then get the coordinates and thus the tz offset we'll be at, construct a DateTime
+     * and then shift the time zone to whatever we like
      *
      * @param localAlarmTime
      * @return
      */
     public DateTime timeForAlarm(LocalDateTime localAlarmTime) {
-        DateTime alarmTime = localAlarmTime.toDateTime(mOriginTime.getZone());
+        // find our current time zone
+        float currOffsetMins = getEffectiveOffsetMinutes();
+        currOffsetMins = invertOffsetIfDateLineCrossed(currOffsetMins);  // Invert if over the date line
+        int offsetHours = (int) ((currOffsetMins - currOffsetMins % 60)) / 60;
+        int offsetMinutes = (int) currOffsetMins % 60;
 
-        return alarmTime;
+        DateTimeZone currentTz = DateTimeZone.forOffsetHoursMinutes(offsetHours, offsetMinutes);
+        DateTime initialTime = DateTime.now(currentTz);
+        DateTime initialAlarmTime = localAlarmTime.toDateTime(currentTz);
+
+        // calculate the difference if the alarm was at the current time zone
+        float initialDifference = initialAlarmTime.getMillis() - initialTime.getMillis();
+        System.out.println(String.valueOf(msToHours((int) initialDifference)));
+        Log.d("timeForAlarm", "initial: " + String.valueOf(msToHours((int) initialDifference)));
+
+        // is now + this amount before or after the alarm?
+        DateTime newTime = initialTime.plusMillis((int) initialDifference);
+        if (newTime.getMillis() > initialAlarmTime.getMillis()) {
+
+        }
+
+        return initialAlarmTime;
     }
 
 }

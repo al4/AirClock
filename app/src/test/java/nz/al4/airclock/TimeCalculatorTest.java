@@ -289,11 +289,23 @@ public class TimeCalculatorTest {
 
     @Test
     public void timeForAlarm_returns_DateTime_after_origin() throws Exception {
+        setCurrentMillisFixed(
+                new DateTime(2017, 1, 1, 4, 0, DateTimeZone.UTC).getMillis() // 4am UTC
+        );
         LocalDateTime alarmTime = new LocalDateTime(2017, 1, 1, 8, 0);   // 8am alarm
         assertThat("returns DateTime after origin",
                 TcLondonAuckland.timeForAlarm(alarmTime).getMillis(),
                 greaterThan(TcLondonAuckland.mOriginTime.getMillis())
         );
     }
+
+//    @Test
+//    public void timeForAlarm_() throws Exception {
+//        LocalDateTime alarmTime = new LocalDateTime(2017, 1, 1, 8, 0);   // 8am alarm
+//        assertThat("returns DateTime after origin",
+//                TcLondonAuckland.timeForAlarm(alarmTime).getMillis(),
+//                greaterThan(TcLondonAuckland.mOriginTime.getMillis())
+//        );
+//    }
 
 }
