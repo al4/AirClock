@@ -105,12 +105,12 @@ public class TimeCalculator {
     }
 
     /**
-     * Get elapsed time during the flight
+     * Get elapsed time at a particular instant
      *
      * @return
      */
-    public float getElapsed() {
-        long nowMillis = new DateTime().getMillis();
+    public float getElapsedAt(DateTime dateTime) {
+        long nowMillis = dateTime.getMillis();
         Long elapsed = nowMillis - mOriginTime.getMillis();
         Log.d("timeCalc", "elapsed millis: " + elapsed);
 
@@ -123,6 +123,15 @@ public class TimeCalculator {
             return 0;
         }
     }
+
+    /**
+     * Get elapsed time now
+     * @return
+     */
+    public float getElapsed() {
+        return getElapsedAt(new DateTime().now());
+    }
+
 
     /**
      * Get the total amount of time we need to shift in minutes
@@ -162,14 +171,15 @@ public class TimeCalculator {
     }
 
     /**
-     * Get the total length of the flight
+     * Get how far we are through the flight at a particular point in time
+     *
      * @return
      */
-    public float getFlightProgress() {
+    public float getFlightProgressAt(DateTime dateTime) {
         float flightLength = getFlightLength();
 
         // Time elapsed since departure
-        float elapsed = getElapsed();
+        float elapsed = getElapsedAt(dateTime);
 
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
@@ -184,6 +194,13 @@ public class TimeCalculator {
         } else {
             return shiftRatio;
         }
+    }
+
+    /**
+     * Get how far through the flight we are now
+     */
+    public float getFlightProgress() {
+        return getFlightProgressAt(DateTime.now());
     }
 
     /**
@@ -225,7 +242,7 @@ public class TimeCalculator {
      */
     public String getEffectiveOffsetText() {
         if (mDestTime.isBefore(mOriginTime)) {
-            // Return origin time zone
+            // Impossible flight, return origin time zone
             long offset = mOriginTime.getZone().getOffset(mOriginTime.toInstant());
             long minutes = msToMinutes((int) offset);
             return getTzString((int) minutes);
@@ -247,10 +264,8 @@ public class TimeCalculator {
 
         else {
             // Return calculated offset
-
             float offsetMins = getEffectiveOffsetMinutes();
             offsetMins = invertOffsetIfDateLineCrossed(offsetMins);  // Invert if over the date line
-
             return getTzString((int) offsetMins);
         }
     }
@@ -464,4 +479,6 @@ public class TimeCalculator {
         int hours = (millis / (1000 * 60 * 60));
         return hours;
     }
+
+//    public float timeForAlarm(float )
 }
