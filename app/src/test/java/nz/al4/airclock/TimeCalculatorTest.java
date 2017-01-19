@@ -258,7 +258,7 @@ public class TimeCalculatorTest {
                 new DateTime(2017, 1, 2, 0, 0, DateTimeZone.UTC).getMillis()
         );
         assertThat("status is in flight",
-                TcLondonAuckland.getFlightStatus(),
+                TcLondonAuckland.getFlightStatusText(),
                 equalTo(new String("in flight"))
         );
     }
@@ -269,7 +269,7 @@ public class TimeCalculatorTest {
                 new DateTime(2016, 12, 31, 0, 0, DateTimeZone.UTC).getMillis()
         );
         assertThat("status is at origin",
-                TcLondonAuckland.getFlightStatus(),
+                TcLondonAuckland.getFlightStatusText(),
                 equalTo(new String("at origin"))
         );
     }
@@ -280,7 +280,7 @@ public class TimeCalculatorTest {
                 new DateTime(2017, 1, 3, 0, 0, DateTimeZone.UTC).getMillis()
         );
         assertThat("status is at destination",
-                TcLondonAuckland.getFlightStatus(),
+                TcLondonAuckland.getFlightStatusText(),
                 equalTo(new String("at destination"))
         );
     }

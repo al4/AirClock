@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity
 
         String shiftDirection = (tc.shiftDirection());
         String crossesDateLine = (tc.crossesDateLine()) ? "yes" : "no";
-        String flightStatus = tc.getFlightStatus();
+        String flightStatus = tc.getFlightStatusText();
 
         this.mOriginText.setText(
                 dateTimeFormatter.print(mOriginDate).replace(" ", "\n") +

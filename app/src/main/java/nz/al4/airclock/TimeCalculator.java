@@ -369,7 +369,7 @@ public class TimeCalculator {
      *
      * @return
      */
-    public final String getFlightStatus() {
+    public final String getFlightStatusText() {
         if (mDestTime.isBefore(mOriginTime)) {
             return "Error, destination before origin";
         }
