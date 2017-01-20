@@ -501,8 +501,8 @@ public class TimeCalculator {
      * iterate forward until we pass the time, then bisect until we reach an approximate time.
      *
      * Idea 2:
-     * Use linear algebra to calculate c such that y = x + c
-     * where y is the time zone offset and x is time.
+     * Use linear algebra to calculate c such that y = cx where y is the time zone offset and
+     * x is time.
      * We can then get the coordinates and thus the tz offset we'll be at, construct a DateTime
      * and then shift the time zone to whatever we like
      *
@@ -510,28 +510,42 @@ public class TimeCalculator {
      * @return
      */
     public DateTime timeForAlarm(LocalDateTime localAlarmTime) {
-        // find our current time zone
-        float currOffsetMins = getEffectiveOffsetMinutes();
-        currOffsetMins = invertOffsetIfDateLineCrossed(currOffsetMins);  // Invert if over the date line
-        int offsetHours = (int) ((currOffsetMins - currOffsetMins % 60)) / 60;
-        int offsetMinutes = (int) currOffsetMins % 60;
+        System.out.println(localAlarmTime.toString());
+        // x axis, Time in ms since 1970
+        long To = mOriginTime.getMillis(); // x1
+        long Tn = DateTime.now().getMillis(); // x2
+        long Td = mDestTime.getMillis(); // x3
+        // y axis, Time zone offset in milliseconds
+        long Oo = mOriginOffset * 60 * 1000; // y1
+        int On = (int) getEffectiveOffsetMinutes() * 60 * 1000;  // y2
+        long Od = mDestOffset * 60 * 1000; // y3
 
-        DateTimeZone currentTz = DateTimeZone.forOffsetHoursMinutes(offsetHours, offsetMinutes);
-        DateTime initialTime = DateTime.now(currentTz);
-        DateTime initialAlarmTime = localAlarmTime.toDateTime(currentTz);
+        // slope = Δx/Δy
+        long slope = (Td - To) / (Od - Oo);
 
-        // calculate the difference if the alarm was at the current time zone
-        float initialDifference = initialAlarmTime.getMillis() - initialTime.getMillis();
-        System.out.println(String.valueOf(msToHours((int) initialDifference)));
-        Log.d("timeForAlarm", "initial: " + String.valueOf(msToHours((int) initialDifference)));
+        // now that we have the slope, we can use minute-of-day values for x.
 
-        // is now + this amount before or after the alarm?
-        DateTime newTime = initialTime.plusMillis((int) initialDifference);
-        if (newTime.getMillis() > initialAlarmTime.getMillis()) {
+        // point 1, our current time becomes (0,0), and knowing the slope and we can get another
+        // point 2, which will be the coordinates of the alarm when we re-add the current time.
 
-        }
+        // by rearranging the slope formula, y2 = (x2 - x1)/S + y1
+        // as x1 and y1 are 0, y2 = x2/S
 
-        return initialAlarmTime;
+        int x2 = localAlarmTime.getMillisOfDay();
+        long y2 = x2 / slope;
+
+        // add current time
+        long Ta = x2 + Tn; // Alarm time (absolute millis)
+        float Oa = y2 + On; // Alarm offset millis from UTC
+
+        // construct a datetime
+        DateTimeZone alarmTz = DateTimeZone.forOffsetMillis((int) Oa);
+        DateTime alarmTime = new DateTime(Ta, alarmTz);
+        System.out.println(alarmTime.toDateTime(
+                mOriginTime.getZone()).toString());
+        System.out.println(alarmTime.toDateTime(
+                mDestTime.getZone()).toString());
+
+        return alarmTime;
     }
-
 }

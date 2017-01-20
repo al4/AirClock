@@ -49,8 +49,8 @@ public class TimeCalculatorTest {
 
         // London to Auckland, 12h offset, 24h flight
         TcLondonAuckland = new TimeCalculator(
-                new LocalDateTime(2017, 1, 1, 0, 0).toDateTime(DateTimeZone.UTC),
-                new LocalDateTime(2017, 1, 2, 12, 0).toDateTime(DateTimeZone.forOffsetHours(12))
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.UTC),
+                new DateTime(2017, 1, 2, 12, 0, DateTimeZone.forOffsetHours(12))
         );
 
         // London to Auckland, 12h offset, 24h flight, reverse over date line
@@ -289,13 +289,18 @@ public class TimeCalculatorTest {
 
     @Test
     public void timeForAlarm_returns_DateTime_after_origin() throws Exception {
+        // London to Auckland, 12h offset, 24h flight
+        TcLondonAuckland = new TimeCalculator(
+                new DateTime(2017, 1, 1, 0, 0, DateTimeZone.UTC),
+                new DateTime(2017, 1, 2, 12, 0, DateTimeZone.forOffsetHours(12))
+        );
         setCurrentMillisFixed(
                 new DateTime(2017, 1, 1, 4, 0, DateTimeZone.UTC).getMillis() // 4am UTC
         );
         LocalDateTime alarmTime = new LocalDateTime(2017, 1, 1, 8, 0);   // 8am alarm
         assertThat("returns DateTime after origin",
                 TcLondonAuckland.timeForAlarm(alarmTime).getMillis(),
-                greaterThan(TcLondonAuckland.mOriginTime.getMillis())
+                greaterThan(TcLondonAuckland.mOriginTime.toInstant().getMillis())
         );
     }
 
