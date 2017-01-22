@@ -10,8 +10,15 @@
         app:showAsAction="ifRoom"
         />
     <item
+        android:id="@+id/action_alarm"
+        android:orderInCategory="110"
+        android:title="@string/action_alarm"
+        android:icon="@drawable/ic_action_settings"
+        app:showAsAction="ifRoom"
+        />
+    <item
         android:id="@+id/action_about"
-        android:orderInCategory="100"
+        android:orderInCategory="120"
         android:title="@string/action_about"
         android:icon="@drawable/ic_info_black_24dp"
         app:showAsAction="never"
