@@ -510,23 +510,22 @@ public class TimeCalculator {
      * @return
      */
     public DateTime timeForAlarm(LocalDateTime localAlarmTime) {
-        System.out.println(localAlarmTime.toString());
+        Log.d("timeForAlarm", "Calculating alarm for time " + localAlarmTime.toString());
         // x axis, Time in ms since 1970
         long To = mOriginTime.getMillis(); // x1
-        long Tn = DateTime.now().getMillis(); // x2
         long Td = mDestTime.getMillis(); // x3
         // y axis, Time zone offset in milliseconds
         long Oo = mOriginOffset * 60 * 1000; // y1
-        int On = (int) getEffectiveOffsetMinutes() * 60 * 1000;  // y2
         long Od = mDestOffset * 60 * 1000; // y3
 
         // slope = Δx/Δy
         long slope = (Td - To) / (Od - Oo);
 
-        // now that we have the slope, we can use minute-of-day values for x.
+        // now that we have the slope, we can use minute-of-day values for the x axis rather than
+        // absolute ms since 1970.
 
-        // point 1, our current time becomes (0,0), and knowing the slope and we can get another
-        // point 2, which will be the coordinates of the alarm when we re-add the current time.
+        // point 1, our origin time becomes (0,0), and knowing the slope and we can get another
+        // point 2, which will be the coordinates of the alarm when we re-add the origin time.
 
         // by rearranging the slope formula, y2 = (x2 - x1)/S + y1
         // as x1 and y1 are 0, y2 = x2/S
@@ -535,16 +534,14 @@ public class TimeCalculator {
         long y2 = x2 / slope;
 
         // add current time
-        long Ta = x2 + Tn; // Alarm time (absolute millis)
-        float Oa = y2 + On; // Alarm offset millis from UTC
+        long Ta = x2 + To; // Alarm time (absolute millis)
+        float Oa = y2 + Oo; // Alarm offset millis from UTC
 
         // construct a datetime
         DateTimeZone alarmTz = DateTimeZone.forOffsetMillis((int) Oa);
         DateTime alarmTime = new DateTime(Ta, alarmTz);
-        System.out.println(alarmTime.toDateTime(
-                mOriginTime.getZone()).toString());
-        System.out.println(alarmTime.toDateTime(
-                mDestTime.getZone()).toString());
+        Log.d("timeForAlarm", "as origin: " + alarmTime.toDateTime(mOriginTime.getZone()).toString());
+        Log.d("timeForAlarm", "as dest: " + alarmTime.toDateTime(mDestTime.getZone()).toString());
 
         return alarmTime;
     }
