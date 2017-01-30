@@ -57,6 +57,14 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_header_general">
+        <ListPreference
+            android:key="calc_direction"
+            android:title="Time shift direction"
+            android:defaultValue="auto"
+            android:summary="%s"
+            android:entries="@array/pref_calc_direction_entries"
+            android:entryValues="@array/pref_calc_direction_entry_values"
+            />
         <CheckBoxPreference
             android:key="analytics"
             android:title="Allow anonymous usage data"

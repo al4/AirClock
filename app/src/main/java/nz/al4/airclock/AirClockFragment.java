@@ -46,6 +46,7 @@ public class AirClockFragment extends Fragment {
     public DateTime originTime = new DateTime();
     public DateTime destTime = new DateTime();
     public String effectiveTz = "Error";
+    public String direction;
 
     private OnTouchListener mListener;
 
@@ -71,6 +72,7 @@ public class AirClockFragment extends Fragment {
 
         // update our TextClock
         timeCalculator = new TimeCalculator(originTime, destTime);
+        timeCalculator.setDirection(this.direction);
 
         effectiveTz = timeCalculator.getEffectiveOffsetText();
         textClock.setTimeZone(effectiveTz);

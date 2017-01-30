@@ -13,8 +13,8 @@
         android:id="@+id/action_alarm"
         android:orderInCategory="110"
         android:title="@string/action_alarm"
-        android:icon="@drawable/ic_action_settings"
-        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_add_alarm"
+        app:showAsAction="never"
         />
     <item
         android:id="@+id/action_about"

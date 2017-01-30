@@ -156,6 +156,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("landingTime"));
             bindPreferenceSummaryToValue(findPreference("takeOffDate"));
             bindPreferenceSummaryToValue(findPreference("landingDate"));
+            bindPreferenceSummaryToValue(findPreference("calc_direction"));
 
             // Build the time zone list
             String[] tzListValues = new TimeZoneList().getTimeZoneOffsets();

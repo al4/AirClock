@@ -25,6 +25,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 
@@ -40,8 +41,8 @@ public class TimeCalculator {
     Integer mOriginOffset;
     Integer mDestOffset;
 
-    String mDirection; // forward or reverse
     String mStatus; // atOrigin, atDestination or inFlight
+    private String direction = "auto";
 
     // Upper and lower bounds for time zones
     int UPPER_TZ_LIMIT = 13;
@@ -68,17 +69,14 @@ public class TimeCalculator {
         }
     }
 
-    /**
-     * Setter for mDirection
-     * @param direction
-     * @throws AirClockException
-     */
-    private void setmDirection(String direction) throws AirClockException {
-        String[] directions = {"forward", "reverse"};
+    public void setDirection(String direction) {
+        String[] directions = {"forward", "reverse", "auto"};
+        Log.e("setDirection", "value " + direction);
         if (Arrays.asList(directions).contains(direction)) {
-            mDirection = direction;
+            this.direction = direction;
         } else {
-            throw new AirClockException("Invalid direction");
+            Log.e("setDirection", "invalid value " + direction + ", setting auto");
+            this.direction = "auto";
         }
     }
 
@@ -139,36 +137,53 @@ public class TimeCalculator {
      *
      * @return
      */
-    public int getTotalTimeShift() {
+    public HashMap getTotalTimeShift() {
         // Amount we're shifting time by in minutes
         int timeShift;
+        String ldirection;
+        HashMap rv = new HashMap();
 
         int simpleDiff = mDestOffset - mOriginOffset;
-
         Log.d("Simple diff", String.valueOf(simpleDiff));
-        if (simpleDiff <= 12*60 && simpleDiff >= -12*60) {
-            // Use simple difference. If it's less than 12 hours going the other way is not going
-            // to be faster.
-            timeShift = simpleDiff;
-            Log.d("getTotalTimeShift",
-                    "Using simple difference for timeshift: " + String.valueOf(simpleDiff));
-        }
-        else {
-            // Opposite way must be faster, subtract from 24h
-            if (simpleDiff > 0) {
-                timeShift = -24 * 60 + simpleDiff;  // should be negative
-            }
-            else if (simpleDiff < 0) {
-                timeShift = 24 * 60 + simpleDiff;  // should be positive
+
+        if (this.direction.equals("auto")) {
+            if (simpleDiff <= 12*60 && simpleDiff >= -12*60) {
+                // Use simple difference. If it's less than 12 hours going the other way is not going
+                // to be faster.
+                Log.d("getTotalTimeShift",
+                        "Using simple difference for timeshift: " + String.valueOf(simpleDiff));
+                rv.put("timeShift", simpleDiff);
+                ldirection = (simpleDiff >= 0) ? "forward" : "reverse";
+                rv.put("direction", ldirection);
             }
             else {
-                // must be zero...
-                timeShift = 0;
+                // Opposite way must be faster, subtract from 24h
+                if (simpleDiff > 0) {
+                    rv.put("timeShift", -24 * 60 + simpleDiff);  // should be negative
+                    rv.put("direction", "reverse");
+                }
+                else if (simpleDiff < 0) {
+                    rv.put("timeShift", 24 * 60 + simpleDiff);  // should be positive
+                    rv.put("direction", "forward");
+                }
+                else {
+                    // must be zero...
+                    rv.put("timeShift", 0);
+                    rv.put("direction", "forward");
+                }
             }
         }
+        else if (this.direction.equals("forward")) {
+            rv.put("direction", "forward");
+            rv.put("timeShift", (simpleDiff >=0) ? simpleDiff : 24 - simpleDiff);
+        }
+        else if (this.direction.equals("reverse")) {
+            rv.put("direction", "reverse");
+            rv.put("timeShift", (simpleDiff <= 0) ? simpleDiff : -24 + simpleDiff);
+        }
 
-        Log.d("getTotalTimeShift", "final shift: " + String.valueOf(timeShift));
-        return timeShift;
+        Log.d("getTotalTimeShift", "final shift: " + rv.get("timeShift"));
+        return rv;
     }
 
     /**
@@ -232,7 +247,8 @@ public class TimeCalculator {
         Log.d("offsetCalc", "shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
-        float totalTimeShift = getTotalTimeShift();
+        HashMap ts = getTotalTimeShift();
+        int totalTimeShift = (int) ts.get("timeShift");
 
         // Time shift at current time
         float shiftMinutes = totalTimeShift * shiftRatio;
@@ -306,6 +322,19 @@ public class TimeCalculator {
         }
     }
 
+    /**
+     * Get date time zone object for current point of flight
+     * @return
+     */
+    public DateTimeZone getTimeZone() {
+        int offsetMins = (int) getEffectiveOffsetMinutes();
+        Integer[] offsetHoursMinutes = minutesToHoursMinutes(offsetMins);
+        Integer offsetHours = offsetHoursMinutes[0];
+        Integer offsetMinutes = offsetHoursMinutes[1];
+
+        return DateTimeZone.forOffsetHoursMinutes(offsetHours, offsetMinutes);
+    }
+
 
     /**
      * Whether we have crossed the date line at the present point in time
@@ -337,12 +366,13 @@ public class TimeCalculator {
      * @return
      */
     public boolean crossesDateLine() {
-        int ts = getTotalTimeShift();
+        HashMap h = getTotalTimeShift();
+        int ts = (int) h.get("timeShift");
 
-        if (mDirection == "forward" && mOriginOffset + ts > UPPER_TZ_LIMIT * 60 ) {
+        if (shiftDirection().equals("forward") && mOriginOffset + ts > UPPER_TZ_LIMIT * 60 ) {
             return true;
         }
-        else if (mDirection == "reverse" && mOriginOffset + ts < LOWER_TZ_LIMIT) {
+        else if (shiftDirection().equals("reverse") && mOriginOffset + ts < LOWER_TZ_LIMIT) {
             return true;
         }
         else {
@@ -357,22 +387,20 @@ public class TimeCalculator {
      * @return
      */
     public final String shiftDirection() {
-        float relativeShift = getTotalTimeShift();
+        HashMap h = getTotalTimeShift();
+        int relativeShift = (int) h.get("timeShift");
 
-        if (relativeShift >= 0) {
-            try {
-                setmDirection("forward");
-            } catch (AirClockException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                setmDirection("reverse");
-            } catch (AirClockException e) {
-                e.printStackTrace();
+        if (this.direction.equals("auto") || this.direction == null) {
+            if (relativeShift >= 0) {
+                Log.v("debug", "a forward");
+                return "forward";
+            } else {
+                Log.v("debug", "a reverse");
+                return "reverse";
             }
         }
-        return mDirection;
+        Log.v("debug", this.direction + "foo");
+        return this.direction;
     }
 
     /**
@@ -397,11 +425,11 @@ public class TimeCalculator {
             return "in flight";
         }
 
-        else if (DateTime.now() == mOriginTime) {
+        else if (DateTime.now().isEqual(mOriginTime)) {
             return "take off!";
         }
 
-        else if (DateTime.now() == mDestTime) {
+        else if (DateTime.now().isEqual(mDestTime)) {
             return "arrived";
         }
 
@@ -512,14 +540,14 @@ public class TimeCalculator {
     public DateTime timeForAlarm(LocalDateTime localAlarmTime) {
         Log.d("timeForAlarm", "Calculating alarm for time " + localAlarmTime.toString());
         // x axis, Time in ms since 1970
-        long To = mOriginTime.getMillis(); // x1
-        long Td = mDestTime.getMillis(); // x3
+        float To = mOriginTime.getMillis(); // x1
+        float Td = mDestTime.getMillis(); // x3
         // y axis, Time zone offset in milliseconds
-        long Oo = mOriginOffset * 60 * 1000; // y1
-        long Od = mDestOffset * 60 * 1000; // y3
+        float Oo = mOriginOffset * 60 * 1000; // y1
+        float Od = mDestOffset * 60 * 1000; // y3
 
         // slope = Δx/Δy
-        long slope = (Td - To) / (Od - Oo);
+        float slope = (Td - To) / (Od - Oo);
 
         // now that we have the slope, we can use minute-of-day values for the x axis rather than
         // absolute ms since 1970.
@@ -531,15 +559,16 @@ public class TimeCalculator {
         // as x1 and y1 are 0, y2 = x2/S
 
         int x2 = localAlarmTime.getMillisOfDay();
-        long y2 = x2 / slope;
+        Log.v("debug", String.valueOf(slope));
+        float y2 = x2 / slope;
 
         // add current time
-        long Ta = x2 + To; // Alarm time (absolute millis)
+        float Ta = x2 + To; // Alarm time (absolute millis)
         float Oa = y2 + Oo; // Alarm offset millis from UTC
 
         // construct a datetime
         DateTimeZone alarmTz = DateTimeZone.forOffsetMillis((int) Oa);
-        DateTime alarmTime = new DateTime(Ta, alarmTz);
+        DateTime alarmTime = new DateTime((long) Ta, alarmTz);
         Log.d("timeForAlarm", "as origin: " + alarmTime.toDateTime(mOriginTime.getZone()).toString());
         Log.d("timeForAlarm", "as dest: " + alarmTime.toDateTime(mDestTime.getZone()).toString());
 

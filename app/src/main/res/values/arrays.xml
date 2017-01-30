@@ -4,4 +4,15 @@
         <item>light</item>
         <item>dark</item>
     </string-array>
+    <string-array name="pref_calc_direction_entries">
+        <!-- True, so long as we don't travel faster than the sun -->
+        <item>Auto (recommended, picks shortest time shift)</item>
+        <item>Forward (travel east, typically speeds up time)</item>
+        <item>Reverse (travel west, typically slows down time)</item>
+    </string-array>
+    <string-array name="pref_calc_direction_entry_values">
+        <item>auto</item>
+        <item>forward</item>
+        <item>reverse</item>
+    </string-array>
 </resources>

@@ -21,14 +21,10 @@ package nz.al4.airclock;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
-import android.widget.Toast;
-
-import java.util.Calendar;
 
 
 /**
@@ -41,10 +37,10 @@ public class TimePickerFragment extends DialogFragment
         // Required empty public constructor
     }
 
-    OnTimePickedListener mCallback;
+    OnAlarmTimePickedListener mCallback;
 
-    public interface OnTimePickedListener {
-        void onTimePicked(String event, int hour, int minute);
+    public interface OnAlarmTimePickedListener {
+        void onAlarmTimePicked(int hour, int minute);
     }
 
     @Override
@@ -52,16 +48,16 @@ public class TimePickerFragment extends DialogFragment
         super.onAttach(activity);
 
         try {
-            mCallback = (OnTimePickedListener)activity;
+            mCallback = (OnAlarmTimePickedListener)activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-                    " must implement OnTimePickedListener.");
+                    " must implement OnAlarmTimePickedListener.");
         }
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mCallback = (OnTimePickedListener)getActivity();
+        mCallback = (OnAlarmTimePickedListener)getActivity();
 
         // Create a new instance of TimePickerDialog and return it
         return new TimePickerDialog(getActivity(), this, 0, 0,
@@ -70,11 +66,11 @@ public class TimePickerFragment extends DialogFragment
 
     @Override
     public void onTimeSet(TimePicker view, int hour, int minute) {
-        Bundle bundle = this.getArguments();
-        String event = bundle.getString("event");
+//        Bundle bundle = this.getArguments();
+//        String event = bundle.getString("event");
 
         if(mCallback != null) {
-            mCallback.onTimePicked(event, hour, minute);
+            mCallback.onAlarmTimePicked(hour, minute);
         }
     }
 

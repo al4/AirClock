@@ -18,6 +18,7 @@
  */
 package nz.al4.airclock;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -36,12 +38,15 @@ import android.widget.TextView;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 import org.joda.time.MutableDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.HashMap;
+
 public class MainActivity extends AppCompatActivity
-        implements AirClockFragment.OnTouchListener
+        implements AirClockFragment.OnTouchListener, TimePickerFragment.OnAlarmTimePickedListener
 {
 
     TextView mOriginText;
@@ -55,6 +60,7 @@ public class MainActivity extends AppCompatActivity
 
     MutableDateTime mOriginDate = new DateTime().toMutableDateTime();
     MutableDateTime mDestDate = new DateTime().toMutableDateTime();
+    String mDirection;
 
     DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm");
 
@@ -160,19 +166,29 @@ public class MainActivity extends AppCompatActivity
             Log.i("prefs", "landingTime is null");
         }
 
+        mDirection = prefs.getString("calc_direction", "auto");
+        Log.e("mainfoo", mDirection);
+
         setTextViews();
+        mClockFragment.direction = mDirection;
         mClockFragment.originTime = mOriginDate.toDateTime();
         mClockFragment.destTime = mDestDate.toDateTime();
     }
 
     private void setTextViews() {
-        TimeCalculator tc = new TimeCalculator(mOriginDate.toDateTime(), mDestDate.toDateTime());
+        mTimeCalculator = new TimeCalculator(
+                mOriginDate.toDateTime(),
+                mDestDate.toDateTime()
+        );
+        TimeCalculator tc = mTimeCalculator;
+        tc.setDirection(mDirection);
 
         float flightLength = tc.msToHours((int) tc.getFlightLength());
         float flightProgress = tc.getFlightProgress();
         float shiftMins = 0.0f;
 
-        float t = tc.getTotalTimeShift();
+        HashMap h = tc.getTotalTimeShift();
+        int t = (int) h.get("timeShift");
         shiftMins = (t <= 0.0f) ? 0.0f - t : t;
 
         String shiftDirection = (tc.shiftDirection());
@@ -213,6 +229,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_alarm) {
+            DialogFragment timeFragment = new TimePickerFragment();
+            timeFragment.show(getSupportFragmentManager(), "timePicker");
         } else if (id == R.id.action_about) {
             DialogFragment aboutFragment = new AboutFragment();
             aboutFragment.show(getSupportFragmentManager(), "aboutFragment");
@@ -229,5 +248,44 @@ public class MainActivity extends AppCompatActivity
     public void startPreferenceActivity(View view) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onAlarmTimePicked(int hour, int minute) {
+
+        DateTime currentTime = DateTime.now().toDateTime(
+                mTimeCalculator.getTimeZone()
+        );
+        Log.v("alarmCalc", "current time" + currentTime.toString());
+        MutableDateTime desiredTime = currentTime.toMutableDateTime();
+        desiredTime.setHourOfDay(hour);
+        desiredTime.setMinuteOfHour(minute);
+
+        // if after we set the hour + minute we get an earlier time, user probably means next day
+        if (desiredTime.isBefore(currentTime)) {
+            desiredTime.addDays(1);
+        }
+
+        DateTime alarmTime = mTimeCalculator.timeForAlarm(
+                desiredTime.toDateTime().toLocalDateTime());
+
+        DateTime originAlarm = alarmTime.toDateTime(mTimeCalculator.mOriginTime.getZone());
+        DateTime destAlarm = alarmTime.toDateTime(mTimeCalculator.mDestTime.getZone());
+
+        String msg = String.format("You should set your alarm for:\n%s (origin)\nor\n%s (destination)",
+                dateTimeFormatter.print(originAlarm) + " " + originAlarm.getZone().toString(),
+                dateTimeFormatter.print(destAlarm) + " " + destAlarm.getZone().toString()
+                );
+
+        new AlertDialog.Builder(this)
+                .setTitle("Alarm")
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Whatever...
+                    }
+                }).show();
     }
 }
