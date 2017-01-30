@@ -65,21 +65,6 @@
             android:entries="@array/pref_calc_direction_entries"
             android:entryValues="@array/pref_calc_direction_entry_values"
             />
-        <!--<CheckBoxPreference-->
-            <!--android:key="analytics"-->
-            <!--android:title="Allow anonymous usage data"-->
-            <!--android:defaultValue="true"-->
-            <!--android:summaryOff="Anonymous usage data will not be sent"-->
-            <!--android:summaryOn="Not yet implemented, but may be used in the future"-->
-            <!--/>-->
-        <!--<ListPreference-->
-            <!--android:key="colour_scheme"-->
-            <!--android:title="Colour Scheme"-->
-            <!--android:defaultValue="light"-->
-            <!--android:summary="%s"-->
-            <!--android:entries="@array/pref_colour_scheme_entries"-->
-            <!--android:entryValues="@array/pref_colour_scheme_entries"-->
-            <!--/>-->
     </PreferenceCategory>
 
 </PreferenceScreen>
