@@ -71,11 +71,11 @@ public class TimeCalculator {
 
     public void setDirection(String direction) {
         String[] directions = {"forward", "reverse", "auto"};
-        Log.e("setDirection", "value " + direction);
+        Log.d("setDirection", "value " + direction);
         if (Arrays.asList(directions).contains(direction)) {
             this.direction = direction;
         } else {
-            Log.e("setDirection", "invalid value " + direction + ", setting auto");
+            Log.w("setDirection", "invalid value " + direction + ", setting auto");
             this.direction = "auto";
         }
     }
@@ -133,30 +133,30 @@ public class TimeCalculator {
 
 
     /**
-     * Get the total amount of time we need to shift in minutes
+     * Get the total amount of time we need to shift in minutes and the direction
      *
      * @return
      */
-    public HashMap getTotalTimeShift() {
+    public HashMap getTimeShiftHash() {
         // Amount we're shifting time by in minutes
         int timeShift;
         String ldirection;
         HashMap rv = new HashMap();
 
         int simpleDiff = mDestOffset - mOriginOffset;
-        Log.d("Simple diff", String.valueOf(simpleDiff));
 
         if (this.direction.equals("auto")) {
             if (simpleDiff <= 12*60 && simpleDiff >= -12*60) {
                 // Use simple difference. If it's less than 12 hours going the other way is not going
                 // to be faster.
-                Log.d("getTotalTimeShift",
+                Log.d("getTimeShiftHash",
                         "Using simple difference for timeshift: " + String.valueOf(simpleDiff));
                 rv.put("timeShift", simpleDiff);
                 ldirection = (simpleDiff >= 0) ? "forward" : "reverse";
                 rv.put("direction", ldirection);
             }
             else {
+                Log.d("getTimeShiftHash", "using opposite diff");
                 // Opposite way must be faster, subtract from 24h
                 if (simpleDiff > 0) {
                     rv.put("timeShift", -24 * 60 + simpleDiff);  // should be negative
@@ -182,8 +182,13 @@ public class TimeCalculator {
             rv.put("timeShift", (simpleDiff <= 0) ? simpleDiff : -24 + simpleDiff);
         }
 
-        Log.d("getTotalTimeShift", "final shift: " + rv.get("timeShift"));
+        Log.d("getTimeShiftHash", "final shift: " + rv.get("timeShift"));
         return rv;
+    }
+
+    public int getTimeShiftMins() {
+        HashMap h = getTimeShiftHash();
+        return (int) h.get("timeShift");
     }
 
     /**
@@ -244,19 +249,16 @@ public class TimeCalculator {
 
         // Shift ratio
         Float shiftRatio = elapsed / flightLength;
-        Log.d("offsetCalc", "shift ratio: " + shiftRatio.toString());
 
         // Total time shift across the journey
-        HashMap ts = getTotalTimeShift();
+        HashMap ts = getTimeShiftHash();
         int totalTimeShift = (int) ts.get("timeShift");
 
         // Time shift at current time
         float shiftMinutes = totalTimeShift * shiftRatio;
-        Log.d("offsetCalc", "shift minutes: " + shiftMinutes);
 
         // Add our shift to origin UTC offset
         float offsetMins = shiftMinutes + mOriginOffset;
-        Log.i("offsetCalc", "effective offset minutes: " + offsetMins);
 
         return offsetMins;
     }
@@ -366,7 +368,7 @@ public class TimeCalculator {
      * @return
      */
     public boolean crossesDateLine() {
-        HashMap h = getTotalTimeShift();
+        HashMap h = getTimeShiftHash();
         int ts = (int) h.get("timeShift");
 
         if (shiftDirection().equals("forward") && mOriginOffset + ts > UPPER_TZ_LIMIT * 60 ) {
@@ -387,19 +389,16 @@ public class TimeCalculator {
      * @return
      */
     public final String shiftDirection() {
-        HashMap h = getTotalTimeShift();
+        HashMap h = getTimeShiftHash();
         int relativeShift = (int) h.get("timeShift");
 
         if (this.direction.equals("auto") || this.direction == null) {
             if (relativeShift >= 0) {
-                Log.v("debug", "a forward");
                 return "forward";
             } else {
-                Log.v("debug", "a reverse");
                 return "reverse";
             }
         }
-        Log.v("debug", this.direction + "foo");
         return this.direction;
     }
 

@@ -6,6 +6,7 @@
     <string name="title_activity_settings">Settings</string>
 
     <string name="pref_header_general">General</string>
+    <string name="pref_header_calc">Calculation Options</string>
 
     <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
 

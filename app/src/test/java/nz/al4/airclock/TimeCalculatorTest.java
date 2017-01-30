@@ -16,7 +16,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 
 /**
@@ -153,7 +152,7 @@ public class TimeCalculatorTest {
     @Test
     public void getTotalTimeShift_London_to_Auckland() throws Exception, AirClockException {
         assertThat("time shift should be 720 minutes",
-                TcLondonAuckland.getTotalTimeShift(),
+                TcLondonAuckland.getTimeShiftMins(),
                 equalTo(new Integer(720))
         );
     }
@@ -161,7 +160,7 @@ public class TimeCalculatorTest {
     @Test
     public void getTotalTimeShift_Honolulu_to_Brisbane() throws Exception, AirClockException {
         assertThat("time shift should be -240 minutes",
-                TcHonoluluBrisbane.getTotalTimeShift(),
+                TcHonoluluBrisbane.getTimeShiftMins(),
                 equalTo(new Integer(-240))
         );
     }
@@ -169,7 +168,7 @@ public class TimeCalculatorTest {
     @Test
     public void getTotalTimeShift_Honolulu_to_Islamabad() throws Exception, AirClockException {
         assertThat("time shift should be -600 minutes",
-                TcHonoluluIslamabad.getTotalTimeShift(),
+                TcHonoluluIslamabad.getTimeShiftMins(),
                 equalTo(new Integer(-600))
         );
     }

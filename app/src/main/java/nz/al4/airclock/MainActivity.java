@@ -38,7 +38,6 @@ import android.widget.TextView;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
 import org.joda.time.MutableDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -187,7 +186,7 @@ public class MainActivity extends AppCompatActivity
         float flightProgress = tc.getFlightProgress();
         float shiftMins = 0.0f;
 
-        HashMap h = tc.getTotalTimeShift();
+        HashMap h = tc.getTimeShiftHash();
         int t = (int) h.get("timeShift");
         shiftMins = (t <= 0.0f) ? 0.0f - t : t;
 
