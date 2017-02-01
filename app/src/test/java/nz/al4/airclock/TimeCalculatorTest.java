@@ -303,6 +303,28 @@ public class TimeCalculatorTest {
         );
     }
 
+    @Test
+    public void timeForAlarm_simple_values_works() throws Exception {
+        TimeCalculator TcSimple = new TimeCalculator(
+                // start at zero
+                new DateTime(1970, 1, 1, 0, 0, 0, DateTimeZone.UTC),
+                // 120 second flight, offset 60 seconds
+                new DateTime(1970, 1, 1, 0, 2, 0, DateTimeZone.forOffsetMillis(60 * 1000))
+        );
+        // 180s covered in flight
+        setCurrentMillisFixed(40 * 1000);  // 33.3..% through flight, thus offset should be 20s
+        // 20s + 40s = 60s airclock time
+
+        // alarm for 80 seconds is 66.6..% through flight, so offset 40s => alarm 120s
+        LocalDateTime alarmTime = new LocalDateTime(1970, 1, 1, 0, 1, 20);
+        System.out.println("start calc");
+        DateTime flightAlarm = TcSimple.timeForAlarm(alarmTime);
+        System.out.println("fin calc");
+        System.out.println(flightAlarm.toString());
+
+    }
+
+
 //    @Test
 //    public void timeForAlarm_() throws Exception {
 //        LocalDateTime alarmTime = new LocalDateTime(2017, 1, 1, 8, 0);   // 8am alarm

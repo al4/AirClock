@@ -23,6 +23,7 @@ import android.util.Log;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
+import org.joda.time.chrono.StrictChronology;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -492,8 +493,7 @@ public class TimeCalculator {
         return (int) minutes;
     }
 
-    /**
-     * Return absolute value of a number
+    /** * Return absolute value of a number
      *
      * @param a
      * @return
@@ -524,14 +524,8 @@ public class TimeCalculator {
      * To do this, we need to figure out what time zone will be applied when we hit this time...
      * far from trivial!
      *
-     * Idea 1:
-     * iterate forward until we pass the time, then bisect until we reach an approximate time.
-     *
-     * Idea 2:
-     * Use linear algebra to calculate c such that y = cx where y is the time zone offset and
-     * x is time.
-     * We can then get the coordinates and thus the tz offset we'll be at, construct a DateTime
-     * and then shift the time zone to whatever we like
+     * So we use linear algebra to create simple formulas for the absolute time and tz offet of our
+     * alarm.
      *
      * @param localAlarmTime
      * @return
@@ -539,31 +533,43 @@ public class TimeCalculator {
     public DateTime timeForAlarm(LocalDateTime localAlarmTime) {
         Log.d("timeForAlarm", "Calculating alarm for time " + localAlarmTime.toString());
         // x axis, Time in ms since 1970
-        float To = mOriginTime.getMillis(); // x1
-        float Td = mDestTime.getMillis(); // x3
-        // y axis, Time zone offset in milliseconds
-        float Oo = mOriginOffset * 60 * 1000; // y1
-        float Od = mDestOffset * 60 * 1000; // y3
+        long To = mOriginTime.getMillis(); // x1
+        long Td = mDestTime.getMillis(); // x3
+        // y axis, Offset in milliseconds
+        long Oo = mOriginTime.getZone().getOffset(mOriginTime); // y1
+        long Od = mDestTime.getZone().getOffset(mDestTime); // y3
+
+        System.out.println(String.valueOf(To) + ',' + String.valueOf(Oo));
+        System.out.println(String.valueOf(Td) + ',' + String.valueOf(Od));
 
         // slope = Δx/Δy
         float slope = (Td - To) / (Od - Oo);
-
-        // now that we have the slope, we can use minute-of-day values for the x axis rather than
-        // absolute ms since 1970.
-
-        // point 1, our origin time becomes (0,0), and knowing the slope and we can get another
-        // point 2, which will be the coordinates of the alarm when we re-add the origin time.
-
-        // by rearranging the slope formula, y2 = (x2 - x1)/S + y1
-        // as x1 and y1 are 0, y2 = x2/S
-
-        int x2 = localAlarmTime.getMillisOfDay();
         Log.v("debug", String.valueOf(slope));
-        float y2 = x2 / slope;
+        System.out.println(String.valueOf(slope));
 
-        // add current time
-        float Ta = x2 + To; // Alarm time (absolute millis)
-        float Oa = y2 + Oo; // Alarm offset millis from UTC
+        /*
+            now that we have the slope, we can use algebra to rearrange what we know and come up
+            with formulas for what we don't.
+
+            * (x1, y1) is the point at takeoff, i.e (To, Oo)
+            * our unknown point, the alarm point is (x2, y2) => (Ta, Oa) (Time of alarm,
+              offset of alarm)
+            * the localtime of the alarm we want to calculate, T, equals x2 (absolute time at
+              alarm) plus y2 (offset at time of alarm)
+            (tz offset at alarm time), i.e T=x2+y2
+
+            by rearranging the slope formula, y2 = (x2 - x1)/S + y1
+            therefore T - x2  = (x2 - x1)/S + y1 etc, until we get the formulas below
+        */
+
+        // UTC is zero offset,
+        long T = localAlarmTime.toDateTime(DateTimeZone.UTC).getMillis();
+        System.out.println("T " + String.valueOf(T));
+        double Ta = ((slope * To) - Oo + T) / (slope + 1);
+        System.out.println("Ta " + String.valueOf(Ta));
+        // y2 = T - x2
+        double Oa = T - Ta;
+        System.out.println("Oa " + String.valueOf(Oa));
 
         // construct a datetime
         DateTimeZone alarmTz = DateTimeZone.forOffsetMillis((int) Oa);
