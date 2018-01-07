@@ -28,7 +28,7 @@ At the moment, it is very simple. Set your takeoff and landing times, and the ap
 
 As an example, here I've set AirClock to shift during a flight which takes off from London at 21:00 UTC, and lands in Auckland two days later at 09:00 NZST, for a journey time of 24 hours, which is about average for a direct flight to Auckland:
 
-![]({{site.baseurl}}/assets/img/example_1.png)
+![]({{site.url}}{{site.baseurl}}/assets/img/example_1.png)
 
 You can see that as at 23:35 it has calculated a time zone of GMT+0127 (i.e. 1h 30 mins ahead of London), and applied that to my phone's internal time, resulting in an effective time of 01:02 am.
 

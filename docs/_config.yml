@@ -10,8 +10,8 @@ title: AirClock
 email: airclock@al4.co.nz
 description: > # this means to ignore newlines until "baseurl:"
   A time-shifting clock to help you combat jet-lag
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://al4.github.io/AirClock" # the base hostname & protocol for your site
+baseurl: "/AirClock" # the subpath of your site, e.g. /blog
+url: "https://al4.github.io" # the base hostname & protocol for your site
 twitter_username: al4
 github_username: al4
 
