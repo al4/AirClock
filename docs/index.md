@@ -10,15 +10,15 @@ AirClock is a simple app I wrote to help combat jet-lag.
 Being a New Zealander living in London, I've done the long-haul flights from London to Auckland several times. Fortunately, being on almost the polar opposite side of the globe to the UK, flights to New Zealand must travel as much north-south as they do east-west, so you don't travel quite as fast laterally as you would going, say, from London to LA. However the jet-lag is still severe, and in the interests of making the most of my annual leave, I've experimented with several strategies for dealing with it.
 
 ## What is jet-lag?
-In a nut-shell, jet-lag is when your body’s circadian rhythm (sleep cycle) is out of step with where you are on the globe, meaning you want to sleep at times that you shouldn’t and are wide awake when you should be asleep.
+In a nut-shell, jet-lag is when your body's circadian rhythm (sleep cycle) is out of step with where you are on the globe, meaning you want to sleep at times that you shouldn't and are wide awake when you should be asleep.
 
 ## Preventing jet-lag
 
-Up until now, the best way I’ve found is to set your clocks to the destination time zone as soon as you board the plane, and pretend you are in that time zone. The idea is that you "think" in the destination time zone and act as you would if you were actually there. I've found this method to be pretty effective, and results in my body clock being only a few hours out by the time I get to Auckland. However, staying awake at 3pm NZ time when it's 3am in London is pretty difficult.
+Up until now, the best way I've found is to set your clocks to the destination time zone as soon as you board the plane, and pretend you are in that time zone. The idea is that you "think" in the destination time zone and act as you would if you were actually there. I've found this method to be pretty effective, and results in my body clock being only a few hours out by the time I get to Auckland. However, staying awake at 3pm NZ time when it's 3am in London is pretty difficult.
 
-So really, this strategy doesn’t prevent jet lag, it merely pays it forward, so you suffer the jet lag on the plane rather than at the destination.
+So really, this strategy doesn't prevent jet lag, it merely pays it forward, so you suffer the jet lag on the plane rather than at the destination.
 
-The airlines don’t help this strategy either, by serving meals at strange times and turning the lights on when your clocks say you should sleep!
+The airlines don't help this strategy either, by serving meals at strange times and turning the lights on when your clocks say you should sleep!
 
 ## A Better Way
 
@@ -48,7 +48,7 @@ Because the app uses the phone's internal time, it is independant of the time zo
 
 ## Disclaimer
 
-I am not a professional app developer, so please don’t expect a professional-quality app! This is a hobbyist project written in my own free time, and it does have bugs. No warranty is given, express or implied.
+I am not a professional app developer, so please don't expect a professional-quality app! This is a hobbyist project written in my own free time, and it does have bugs. No warranty is given, express or implied.
 
 I am also not a doctor, or a scientist conducting research into jet-lag, circadian rhythms or sleep cycles, or an authority on any such subjects. Use of this app should not be taken as medical advice, and it will not prevent jet lag.
 
