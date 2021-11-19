@@ -555,8 +555,7 @@ public class TimeCalculator {
             * our unknown point, the alarm point is (x2, y2) => (Ta, Oa) (Time of alarm,
               offset of alarm)
             * the localtime of the alarm we want to calculate, T, equals x2 (absolute time at
-              alarm) plus y2 (offset at time of alarm)
-            (tz offset at alarm time), i.e T=x2+y2
+              alarm) plus y2 (offset at time of alarm), i.e T=x2+y2
 
             by rearranging the slope formula, y2 = (x2 - x1)/S + y1
             therefore T - x2  = (x2 - x1)/S + y1 etc, until we get the formulas below
@@ -565,10 +564,17 @@ public class TimeCalculator {
         // UTC is zero offset,
         long T = localAlarmTime.toDateTime(DateTimeZone.UTC).getMillis();
         System.out.println("T " + String.valueOf(T));
-        double Ta = ((slope * To) - Oo + T) / (slope + 1);
-        System.out.println("Ta " + String.valueOf(Ta));
+//        double Ta = ((slope * To) - Oo + T) / (slope + 1);
         // y2 = T - x2
+//        double Oa = T - Ta;
+
+//        double Oa = (slope + 1) / ((slope * T) - (slope * To) + Oo);
+//        double Ta = T - Oa;
+
+        double Ta = (T + (slope * To) - Oo) / (slope + 1);
         double Oa = T - Ta;
+
+        System.out.println("Ta " + String.valueOf(Ta));
         System.out.println("Oa " + String.valueOf(Oa));
 
         // construct a datetime

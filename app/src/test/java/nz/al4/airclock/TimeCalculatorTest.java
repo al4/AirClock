@@ -321,6 +321,7 @@ public class TimeCalculatorTest {
         DateTime flightAlarm = TcSimple.timeForAlarm(alarmTime);
         System.out.println("fin calc");
         System.out.println(flightAlarm.toString());
+        System.out.println(String.valueOf(flightAlarm.getMillis()));
 
     }
 

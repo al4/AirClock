@@ -15,7 +15,7 @@
         android:title="@string/action_alarm"
         android:icon="@drawable/ic_action_add_alarm"
         app:showAsAction="never"
-        android:visible="false"
+        android:visible="true"
         />
     <item
         android:id="@+id/action_about"
