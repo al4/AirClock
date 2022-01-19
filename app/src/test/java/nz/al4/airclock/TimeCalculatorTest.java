@@ -1,5 +1,10 @@
 package nz.al4.airclock;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
+
 import android.util.Log;
 
 import org.joda.time.DateTime;
@@ -10,13 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 
 /**
  * Created by alex on 07/01/2017.
@@ -26,6 +27,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Log.class})
+@PowerMockIgnore("jdk.internal.reflect.*")
 public class TimeCalculatorTest {
 
     private TimeCalculator TcHonoluluBrisbane;

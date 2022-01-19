@@ -21,7 +21,6 @@ package nz.al4.airclock;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.SpannableString;
 import android.util.Log;
 import android.util.TypedValue;
@@ -33,6 +32,8 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import org.joda.time.DateTime;
 
