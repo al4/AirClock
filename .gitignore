@@ -1,4 +1,7 @@
+# General
 .idea/
+
+# Android/Gradle
 *.iml
 *.dex
 *.apk
@@ -16,4 +19,10 @@ gen/
 out/
 *.jks
 gen-external-apklibs
-.externalNativeBuild
+
+# Ruby/Jekyll
+**/Gemfile.lock
+docs/.jekyll-cache
+docs/.jekyll-metadata
+docs/.sass-cache
+docs/_site
