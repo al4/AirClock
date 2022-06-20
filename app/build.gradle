@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 32
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "nz.al4.airclock"
         minSdkVersion 17
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode 7
         versionName "0.7"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
