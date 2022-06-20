@@ -1,10 +1,9 @@
 package nz.al4.airclock;
 
 
-import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
+import androidx.core.app.DialogFragment;
+import androidx.core.app.Fragment;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.text.Html;
 import android.view.LayoutInflater;

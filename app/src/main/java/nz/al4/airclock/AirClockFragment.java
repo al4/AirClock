@@ -21,7 +21,7 @@ package nz.al4.airclock;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.core.app.Fragment;
 import android.text.SpannableString;
 import android.util.Log;
 import android.util.TypedValue;

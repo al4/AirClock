@@ -24,8 +24,8 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
+import androidx.core.app.DialogFragment;
+import androidx.core.app.Fragment;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
