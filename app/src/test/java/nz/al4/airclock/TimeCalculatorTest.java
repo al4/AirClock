@@ -1,5 +1,10 @@
 package nz.al4.airclock;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
+
 import android.util.Log;
 
 import org.joda.time.DateTime;
@@ -12,11 +17,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 
 /**
  * Created by alex on 07/01/2017.
@@ -317,11 +317,7 @@ public class TimeCalculatorTest {
 
         // alarm for 80 seconds is 66.6..% through flight, so offset 40s => alarm 120s
         LocalDateTime alarmTime = new LocalDateTime(1970, 1, 1, 0, 1, 20);
-        System.out.println("start calc");
         DateTime flightAlarm = TcSimple.timeForAlarm(alarmTime);
-        System.out.println("fin calc");
-        System.out.println(flightAlarm.toString());
-
     }
 
 
